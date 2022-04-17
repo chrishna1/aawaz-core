@@ -28,7 +28,7 @@ function appendHtml(el, str) {
 }
 
 
-fetch("http://localhost:8080/api/comments", { 
+fetch("http://localhost:8080/api/v1/comments", { 
   method: "GET",
 }).then(function(response) {
   return response.json();
