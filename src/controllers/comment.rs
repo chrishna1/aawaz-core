@@ -1,16 +1,15 @@
-use diesel::{Insertable, AsChangeset};
-use actix_web::{web, Responder, HttpResponse};
-use diesel::{prelude::*, insert_into};
-use crate::schema::{comment};
-use crate::models::{Comment};
-use serde::{Deserialize};
 use crate::db;
-
+use crate::models::Comment;
+use crate::schema::comment;
+use actix_web::{web, HttpResponse, Responder};
+use diesel::{insert_into, prelude::*};
+use diesel::{AsChangeset, Insertable};
+use serde::Deserialize;
 
 pub async fn comment_list() -> impl Responder {
     // TODO given app_id and page_id returns all comments
     let connection = db::get_db_connection();
-    
+
     let results = comment::table
         .load::<Comment>(&connection)
         .expect("Error loading tests");
@@ -29,25 +28,24 @@ pub async fn get_comment(params: web::Query<CommentParams>) -> impl Responder {
     // given comment_id return comment
     let connection = db::get_db_connection();
 
-    let result = comment::table.filter(comment::id.eq(params.id))
+    let result = comment::table
+        .filter(comment::id.eq(params.id))
         .first::<Comment>(&connection)
         .expect("Error getting comment");
-    
+
     web::Json(result)
 }
 
-
 #[derive(Deserialize, Insertable, AsChangeset)]
-#[table_name="comment"]
+#[table_name = "comment"]
 pub struct CommentForm {
-  pub created_by: i32,
-  pub page_id: i32,
-  pub parent_id: Option<i32>,
-  pub content: String,
-  pub created_at: Option<chrono::NaiveDateTime>,
-  pub updated_at: Option<chrono::NaiveDateTime>,
+    pub created_by: i32,
+    pub page_id: i32,
+    pub parent_id: Option<i32>,
+    pub content: String,
+    pub created_at: Option<chrono::NaiveDateTime>,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
-
 
 pub async fn comment_create(mut comment_form: web::Json<CommentForm>) -> impl Responder {
     // TODO - get `created_by` from session cookie..
@@ -66,9 +64,10 @@ pub async fn comment_create(mut comment_form: web::Json<CommentForm>) -> impl Re
     web::Json(result)
 }
 
-pub async fn comment_update(params: web::Query<CommentParams>,
-    comment_form: web::Json<CommentForm>) -> impl Responder {
-
+pub async fn comment_update(
+    params: web::Query<CommentParams>,
+    comment_form: web::Json<CommentForm>,
+) -> impl Responder {
     let connection = db::get_db_connection();
 
     let comment = diesel::update(comment::table.find(params.id))
@@ -84,7 +83,7 @@ pub async fn comment_delete(params: web::Query<CommentParams>) -> impl Responder
     // TODO - throw error when comment not found!!!
     let connection = db::get_db_connection();
 
-    let result = comment::table.filter(comment::id.eq(params.id));    
+    let result = comment::table.filter(comment::id.eq(params.id));
     let result = diesel::delete(result)
         .execute(&connection)
         .expect("Can't delete comment");

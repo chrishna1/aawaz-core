@@ -1,11 +1,10 @@
-use diesel::{Insertable, AsChangeset};
-use actix_web::{web, Responder, HttpResponse};
-use diesel::{prelude::*, insert_into};
-use crate::schema::{users};
-use crate::models::{User};
 use crate::db;
-use serde::{Deserialize};
-
+use crate::models::User;
+use crate::schema::users;
+use actix_web::{web, HttpResponse, Responder};
+use diesel::{insert_into, prelude::*};
+use diesel::{AsChangeset, Insertable};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct UserParams {
@@ -16,23 +15,22 @@ pub async fn get_user(params: web::Query<UserParams>) -> impl Responder {
     // given user_id return user
     let connection = db::get_db_connection();
 
-    let result = users::table.filter(users::id.eq(params.id))
+    let result = users::table
+        .filter(users::id.eq(params.id))
         .first::<User>(&connection)
         .expect("Error getting user");
-    
+
     web::Json(result)
 }
 
-
 #[derive(Deserialize, Insertable, AsChangeset)]
-#[table_name="users"]
+#[table_name = "users"]
 pub struct UserForm {
-  pub handle: String,
-  pub name: String,
-  pub email: String,
-  pub password: String,
+    pub handle: String,
+    pub name: String,
+    pub email: String,
+    pub password: String,
 }
-
 
 pub async fn user_create(user_form: web::Json<UserForm>) -> impl Responder {
     // TODO - hash password
@@ -50,9 +48,10 @@ pub async fn user_create(user_form: web::Json<UserForm>) -> impl Responder {
     web::Json(result)
 }
 
-pub async fn user_update(params: web::Query<UserParams>,
-    user_form: web::Json<UserForm>) -> impl Responder {
-
+pub async fn user_update(
+    params: web::Query<UserParams>,
+    user_form: web::Json<UserForm>,
+) -> impl Responder {
     // TODO - get `created_by` from session cookie..
     // ensure user exists
     // if new email, ensure email exists???
@@ -71,15 +70,13 @@ pub async fn user_update(params: web::Query<UserParams>,
 
 pub async fn user_delete(params: web::Query<UserParams>) -> impl Responder {
     // TODO - throw error when user not found!!!
-    // handle all the comments of the user.. 
+    // handle all the comments of the user..
     let connection = db::get_db_connection();
 
-    let result = users::table.filter(users::id.eq(params.id));    
+    let result = users::table.filter(users::id.eq(params.id));
     let result = diesel::delete(result)
         .execute(&connection)
         .expect("Can't delete user");
 
     HttpResponse::Ok().json(result)
 }
-
-

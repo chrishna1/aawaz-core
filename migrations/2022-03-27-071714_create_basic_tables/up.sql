@@ -2,7 +2,7 @@
 
 create table users ( -- plural as `user` is a reserved keyword.
   id serial primary key,
-  handle varchar(20), 
+  handle varchar(20),
   password text not null,
   name varchar(20), -- fullname
   email text unique,
@@ -58,5 +58,3 @@ create table comment (
 
 insert into comment (created_by, page_id, content) values (1, 1, 'pehla comment');
 insert into comment (created_by, page_id, content) values (2, 1, 'dusra comment');
-
-

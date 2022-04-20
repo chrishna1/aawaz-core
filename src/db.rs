@@ -3,10 +3,10 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
 use diesel_migrations::*;
+use dotenv::dotenv;
+use lazy_static::lazy_static;
 use log::info;
 use r2d2;
-use lazy_static::lazy_static;
-use dotenv::dotenv;
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
@@ -21,7 +21,6 @@ lazy_static! {
         Pool::new(manager).expect("Failed to create the pool")
     };
 }
-
 
 pub fn init() {
     info!("Initializing Database");

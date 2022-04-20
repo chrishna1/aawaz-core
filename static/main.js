@@ -9,7 +9,7 @@ function showComments(data) {
 function createCommentCard(comment) {
   console.log('comment :>> ', comment);
   // body = document.getElementsByTagName("body")
-  
+
   div = document.createElement('div');
   // document.createElement("")
   // body[0].append(div)
@@ -28,7 +28,7 @@ function appendHtml(el, str) {
 }
 
 
-fetch("http://localhost:8080/api/v1/comments", { 
+fetch("http://localhost:8080/api/v1/comments", {
   method: "GET",
 }).then(function(response) {
   return response.json();

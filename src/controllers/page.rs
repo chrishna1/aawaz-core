@@ -1,9 +1,9 @@
-use actix_web::{web, HttpResponse, Responder};
-use diesel::{AsChangeset, Insertable};
-use diesel::{insert_into, prelude::*};
 use crate::db;
-use crate::models::{Page};
-use crate::schema::{page};
+use crate::models::Page;
+use crate::schema::page;
+use actix_web::{web, HttpResponse, Responder};
+use diesel::{insert_into, prelude::*};
+use diesel::{AsChangeset, Insertable};
 use serde::Deserialize;
 
 pub async fn page_list() -> impl Responder {
