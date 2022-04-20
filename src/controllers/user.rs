@@ -3,7 +3,7 @@ use actix_web::{web, Responder, HttpResponse};
 use diesel::{prelude::*, insert_into};
 use crate::schema::{users};
 use crate::models::{User};
-use crate::controllers::util::establish_connection;
+use crate::db;
 use serde::{Deserialize};
 
 
@@ -14,7 +14,7 @@ pub struct UserParams {
 
 pub async fn get_user(params: web::Query<UserParams>) -> impl Responder {
     // given user_id return user
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = users::table.filter(users::id.eq(params.id))
         .first::<User>(&connection)
@@ -40,7 +40,7 @@ pub async fn user_create(user_form: web::Json<UserForm>) -> impl Responder {
     // ensure email exists???
     // send verification email
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result: User = insert_into(users::table)
         .values(&*user_form)
@@ -58,7 +58,7 @@ pub async fn user_update(params: web::Query<UserParams>,
     // if new email, ensure email exists???
     // send verification for the email
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let user = diesel::update(users::table.find(params.id))
         .set(&*user_form)
@@ -72,7 +72,7 @@ pub async fn user_update(params: web::Query<UserParams>,
 pub async fn user_delete(params: web::Query<UserParams>) -> impl Responder {
     // TODO - throw error when user not found!!!
     // handle all the comments of the user.. 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = users::table.filter(users::id.eq(params.id));    
     let result = diesel::delete(result)

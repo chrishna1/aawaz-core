@@ -4,12 +4,12 @@ use diesel::{prelude::*, insert_into};
 use crate::schema::{comment};
 use crate::models::{Comment};
 use serde::{Deserialize};
-use crate::controllers::util::establish_connection;
+use crate::db;
 
 
 pub async fn comment_list() -> impl Responder {
     // TODO given app_id and page_id returns all comments
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
     
     let results = comment::table
         .load::<Comment>(&connection)
@@ -27,7 +27,7 @@ pub struct CommentParams {
 
 pub async fn get_comment(params: web::Query<CommentParams>) -> impl Responder {
     // given comment_id return comment
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = comment::table.filter(comment::id.eq(params.id))
         .first::<Comment>(&connection)
@@ -53,7 +53,7 @@ pub async fn comment_create(mut comment_form: web::Json<CommentForm>) -> impl Re
     // TODO - get `created_by` from session cookie..
     // ensure page_id, parent_id exists
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     comment_form.created_at = Some(chrono::prelude::Utc::now().naive_utc());
     comment_form.updated_at = Some(chrono::prelude::Utc::now().naive_utc());
@@ -69,7 +69,7 @@ pub async fn comment_create(mut comment_form: web::Json<CommentForm>) -> impl Re
 pub async fn comment_update(params: web::Query<CommentParams>,
     comment_form: web::Json<CommentForm>) -> impl Responder {
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let comment = diesel::update(comment::table.find(params.id))
         .set(&*comment_form)
@@ -82,7 +82,7 @@ pub async fn comment_update(params: web::Query<CommentParams>,
 
 pub async fn comment_delete(params: web::Query<CommentParams>) -> impl Responder {
     // TODO - throw error when comment not found!!!
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = comment::table.filter(comment::id.eq(params.id));    
     let result = diesel::delete(result)

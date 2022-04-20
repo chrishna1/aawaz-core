@@ -13,7 +13,9 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "dotenv",
+ "lazy_static",
  "log",
+ "r2d2",
  "serde",
  "serde_json",
 ]

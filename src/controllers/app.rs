@@ -4,7 +4,7 @@ use diesel::{prelude::*, insert_into};
 use crate::schema::{app};
 use crate::models::{App};
 use serde::{Deserialize};
-use crate::controllers::util::establish_connection;
+use crate::db;
 
 
 #[derive(Deserialize)]
@@ -14,7 +14,7 @@ pub struct AppParams {
 
 pub async fn get_app(params: web::Query<AppParams>) -> impl Responder {
     // given page_id return app
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = app::table.filter(app::id.eq(params.id))
         .first::<App>(&connection)
@@ -38,7 +38,7 @@ pub async fn app_create(app_form: web::Json<AppForm>) -> impl Responder {
     // ensure owner exists
     // validate domain, ensure it's a valid domain
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result: App = insert_into(app::table)
         .values(&*app_form)
@@ -55,7 +55,7 @@ pub async fn app_update(params: web::Query<AppParams>,
     // ensure owner exists
     // validate domain, ensure it's a valid domain
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let app = diesel::update(app::table.find(params.id))
         .set(&*app_form)
@@ -68,7 +68,7 @@ pub async fn app_update(params: web::Query<AppParams>,
 
 pub async fn app_delete(params: web::Query<AppParams>) -> impl Responder {
     // TODO - throw error when app not found!!!
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = app::table.filter(app::id.eq(params.id));    
     let result = diesel::delete(result)

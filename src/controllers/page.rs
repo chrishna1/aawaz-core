@@ -1,25 +1,14 @@
 use actix_web::{web, HttpResponse, Responder};
-use diesel::{pg::PgConnection, AsChangeset, Insertable};
-use std::env;
-
+use diesel::{AsChangeset, Insertable};
 use diesel::{insert_into, prelude::*};
-use dotenv::dotenv;
-
+use crate::db;
 use crate::models::{Page};
 use crate::schema::{page};
 use serde::Deserialize;
 
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
-    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
-}
-
 pub async fn page_list() -> impl Responder {
     // given app_id returns all pages associated with the app.
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let results = page::table
         .load::<Page>(&connection)
@@ -37,7 +26,7 @@ pub struct PageParams {
 
 pub async fn get_page(params: web::Query<PageParams>) -> impl Responder {
     // given page_id return page
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = page::table
         .filter(page::id.eq(params.id))
@@ -59,7 +48,7 @@ pub async fn page_create(page_form: web::Json<PageForm>) -> impl Responder {
     // ensure app_id exists
     // sanitize slug, ensure it's valid slug
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result: Page = insert_into(page::table)
         .values(&*page_form)
@@ -77,7 +66,7 @@ pub async fn page_update(
     // ensure app_id exists
     // sanitize slug, ensure it's valid slug
 
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let page = diesel::update(page::table.find(params.id))
         .set(&*page_form)
@@ -90,7 +79,7 @@ pub async fn page_update(
 
 pub async fn page_delete(params: web::Query<PageParams>) -> impl Responder {
     // TODO - throw error when page not found!!!
-    let connection = establish_connection();
+    let connection = db::get_db_connection();
 
     let result = page::table.filter(page::id.eq(params.id));
     let result = diesel::delete(result)
