@@ -14,8 +14,6 @@ pub async fn comment_list() -> impl Responder {
         .load::<Comment>(&connection)
         .expect("Error loading tests");
 
-    println!("Got {} results", results.len());
-
     web::Json(results)
 }
 
@@ -39,7 +37,7 @@ pub async fn get_comment(params: web::Query<CommentParams>) -> impl Responder {
 #[derive(Deserialize, Insertable, AsChangeset)]
 #[table_name = "comment"]
 pub struct CommentForm {
-    pub created_by: i32,
+    pub user_id: i32,
     pub page_id: i32,
     pub parent_id: Option<i32>,
     pub content: String,
@@ -48,7 +46,7 @@ pub struct CommentForm {
 }
 
 pub async fn comment_create(mut comment_form: web::Json<CommentForm>) -> impl Responder {
-    // TODO - get `created_by` from session cookie..
+    // TODO - get `user_id` from session cookie..
     // ensure page_id, parent_id exists
 
     let connection = db::get_db_connection();
@@ -74,7 +72,6 @@ pub async fn comment_update(
         .set(&*comment_form)
         .get_result::<Comment>(&connection)
         .expect(&format!("Unable to find comment with {}", params.id));
-    println!("Updated comment {}", comment.id);
 
     web::Json(comment)
 }

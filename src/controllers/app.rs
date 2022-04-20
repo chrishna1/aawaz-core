@@ -32,7 +32,7 @@ pub struct AppForm {
 }
 
 pub async fn app_create(app_form: web::Json<AppForm>) -> impl Responder {
-    // TODO - get `created_by` from session cookie..
+    // TODO - get `user_id` from session cookie..
     // ensure owner exists
     // validate domain, ensure it's a valid domain
 
@@ -50,7 +50,7 @@ pub async fn app_update(
     params: web::Query<AppParams>,
     app_form: web::Json<AppForm>,
 ) -> impl Responder {
-    // TODO - get `created_by` from session cookie..
+    // TODO - get `user_id` from session cookie..
     // ensure owner exists
     // validate domain, ensure it's a valid domain
 
@@ -60,7 +60,6 @@ pub async fn app_update(
         .set(&*app_form)
         .get_result::<App>(&connection)
         .expect(&format!("Unable to find app with {}", params.id));
-    println!("Updated app {}", app.id);
 
     web::Json(app)
 }

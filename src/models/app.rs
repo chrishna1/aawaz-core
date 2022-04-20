@@ -7,7 +7,7 @@ pub struct App {
     pub name: String,
     pub domain: String,
     pub owner: i32,
-    pub deleted: bool,
+    pub is_deleted: bool,
     pub created_at: Option<chrono::NaiveDateTime>,
     pub updated_at: Option<chrono::NaiveDateTime>,
 }

@@ -14,8 +14,6 @@ pub async fn page_list() -> impl Responder {
         .load::<Page>(&connection)
         .expect("Error loading pages");
 
-    println!("Got {} results", results.len());
-
     web::Json(results)
 }
 
@@ -44,7 +42,7 @@ pub struct PageForm {
 }
 
 pub async fn page_create(page_form: web::Json<PageForm>) -> impl Responder {
-    // TODO - get `created_by` from session cookie..
+    // TODO - get `user_id` from session cookie..
     // ensure app_id exists
     // sanitize slug, ensure it's valid slug
 
@@ -62,7 +60,7 @@ pub async fn page_update(
     params: web::Query<PageParams>,
     page_form: web::Json<PageForm>,
 ) -> impl Responder {
-    // TODO - get `created_by` from session cookie..
+    // TODO - get `user_id` from session cookie..
     // ensure app_id exists
     // sanitize slug, ensure it's valid slug
 
@@ -72,7 +70,6 @@ pub async fn page_update(
         .set(&*page_form)
         .get_result::<Page>(&connection)
         .expect(&format!("Unable to find page with {}", params.id));
-    println!("Updated page {}", page.id);
 
     web::Json(page)
 }

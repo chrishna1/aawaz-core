@@ -12,7 +12,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
                     .route("/comment", web::put().to(comment_create))
                     .route("/comment", web::patch().to(comment_update))
                     .route("/comment", web::delete().to(comment_delete))
-                    // page relbuild_routerated routes
+                    // page related routes
                     .route("/pages", web::get().to(page_list))
                     .route("/page", web::get().to(get_page))
                     .route("/page", web::put().to(page_create))

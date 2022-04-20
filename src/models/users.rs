@@ -6,7 +6,7 @@ use crate::schema::users;
 #[table_name = "users"]
 pub struct User {
     pub id: i32,
-    pub handle: String,
+    pub username: String,
     pub name: String,
     pub password: String,
     pub email: String,
