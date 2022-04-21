@@ -31,7 +31,8 @@ create table page (
   updated_at timestamp
 );
 
-
+-- preferred over table unique constraint
+CREATE UNIQUE INDEX app_slug_uniq_idx ON page(app_id, slug);
 
 create table comment (
   id serial primary key,
