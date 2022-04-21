@@ -11,6 +11,6 @@ pub struct Comment {
     pub parent_id: Option<i32>,
     pub content: String,
     pub is_deleted: bool,
+    pub created_at: chrono::NaiveDateTime,
     pub updated_at: Option<chrono::NaiveDateTime>,
-    pub created_at: Option<chrono::NaiveDateTime>,
 }

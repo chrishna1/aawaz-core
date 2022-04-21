@@ -7,9 +7,9 @@ use crate::schema::users;
 pub struct User {
     pub id: i32,
     pub username: String,
-    pub name: String,
     pub password: String,
+    pub name: Option<String>,
     pub email: String,
+    pub created_at: chrono::NaiveDateTime,
     pub updated_at: Option<chrono::NaiveDateTime>,
-    pub created_at: Option<chrono::NaiveDateTime>,
 }

@@ -34,7 +34,7 @@ pub struct AppForm {
 pub async fn app_create(app_form: web::Json<AppForm>) -> impl Responder {
     // TODO - get `user_id` from session cookie..
     // ensure owner exists
-    // validate domain, ensure it's a valid domain
+    // ensure it's a valid domain
 
     let connection = db::get_db_connection();
 

@@ -8,6 +8,6 @@ pub struct App {
     pub domain: String,
     pub owner: i32,
     pub is_deleted: bool,
-    pub created_at: Option<chrono::NaiveDateTime>,
+    pub created_at: chrono::NaiveDateTime,
     pub updated_at: Option<chrono::NaiveDateTime>,
 }

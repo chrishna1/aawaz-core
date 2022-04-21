@@ -4,10 +4,10 @@ diesel::table! {
     app (id) {
         id -> Int4,
         name -> Varchar,
-        domain -> Text,
+        domain -> Varchar,
         owner -> Int4,
         is_deleted -> Bool,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
     }
 }
@@ -20,7 +20,7 @@ diesel::table! {
         parent_id -> Nullable<Int4>,
         content -> Text,
         is_deleted -> Bool,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
     }
 }
@@ -30,7 +30,7 @@ diesel::table! {
         id -> Int4,
         app_id -> Int4,
         slug -> Text,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
     }
 }
@@ -40,9 +40,9 @@ diesel::table! {
         id -> Int4,
         username -> Varchar,
         password -> Text,
-        name -> Varchar,
+        name -> Nullable<Varchar>,
         email -> Text,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
     }
 }

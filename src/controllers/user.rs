@@ -27,7 +27,7 @@ pub async fn get_user(params: web::Query<UserParams>) -> impl Responder {
 #[table_name = "users"]
 pub struct UserForm {
     pub username: String,
-    pub name: String,
+    pub name: Option<String>,
     pub email: String,
     pub password: String,
 }
