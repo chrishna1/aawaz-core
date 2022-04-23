@@ -4,6 +4,7 @@ use crate::schema::app;
 #[table_name = "app"]
 pub struct App {
     pub id: i32,
+    pub ext_id: uuid::Uuid,
     pub name: String,
     pub domain: String,
     pub owner: i32,

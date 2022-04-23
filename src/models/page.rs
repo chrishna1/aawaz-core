@@ -4,6 +4,7 @@ use crate::schema::page;
 #[table_name = "page"]
 pub struct Page {
     pub id: i32,
+    pub ext_id: uuid::Uuid,
     pub app_id: i32,
     pub slug: String,
     pub created_at: chrono::NaiveDateTime,

@@ -6,6 +6,7 @@ use crate::schema::comment;
 #[table_name = "comment"]
 pub struct Comment {
     pub id: i32,
+    pub ext_id: uuid::Uuid,
     pub user_id: i32,
     pub page_id: i32,
     pub parent_id: Option<i32>,
