@@ -2,7 +2,7 @@
 
 create table users ( -- plural as `user` is a reserved keyword.
   id serial primary key,
-  ext_id UUID unique not null, -- id used externally(shown to the client)
+  ext_id UUID not null, -- id used externally(shown to the client)
   username varchar(20) not null,
   password text not null,
   name varchar(100), -- fullname
@@ -11,6 +11,9 @@ create table users ( -- plural as `user` is a reserved keyword.
   created_at timestamp not null,
   updated_at timestamp
 );
+
+create unique index lower_case_username ON users (lower(username));
+create unique index lower_case_email ON users (lower(email));
 
 
 create table app (

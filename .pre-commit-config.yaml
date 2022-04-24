@@ -23,4 +23,5 @@ repos:
     rev: v1.0
     hooks:
     -   id: fmt
+        exclude: src/schema.rs
     -   id: cargo-check
