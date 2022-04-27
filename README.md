@@ -5,13 +5,9 @@ A blazing fast, easy to setup, privacy friendly, highly configurable commenting 
 
 #### Development.
 
-- Install `rust` if you don't have it already installed.
+- [Install rust](https://www.rust-lang.org/tools/install) and [postgres](https://www.postgresql.org/download/) if you don't have it already installed.
 
-    ```sh
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    ```
-
-- Fork, and clone this repository.
+- Fork and clone this repository.
 
 - Run the following commands.
     - Install the dependencies.
@@ -25,9 +21,19 @@ A blazing fast, easy to setup, privacy friendly, highly configurable commenting 
         CREATE DATABASE aawaz-core
     """
     ```
-    - Edit the `.env` file and set the variable `DATABASE_URL`. Replace the string `krishnajha` with your password.
+    - Create .env from the given template
+    ```sh
+    cp .env.sample .env
+    ```
 
-    - Create the tables.
+    - Fill the `.env` file appropriately.
+
+    - Install diesel-cli(to generate/apply migration)
+    ```sh
+    cargo install diesel_cli
+    ```
+
+    - Run the migrations.
     ```sh
     diesel migrations run
     ```
@@ -35,6 +41,11 @@ A blazing fast, easy to setup, privacy friendly, highly configurable commenting 
     - Run the development server.
     ```sh
     cargo run
+    ```
+    To run the development server in the watch mode.
+    ```sh
+    cargo install cargo-watch
+    cargo watch -x run
     ```
 
 - Set up [`pre-commit`](https://pre-commit.com) by following the instructions on the website.
