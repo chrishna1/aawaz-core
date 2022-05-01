@@ -5,7 +5,7 @@ A blazing fast, easy to setup, privacy friendly, highly configurable commenting 
 
 #### Development.
 
-- [Install rust](https://www.rust-lang.org/tools/install) and [postgres](https://www.postgresql.org/download/) if you don't have it already installed.
+- [Install rust 1.57+](https://www.rust-lang.org/tools/install) and [postgres 13+](https://www.postgresql.org/download/) if you don't have it already installed.
 
 - Fork and clone this repository.
 
