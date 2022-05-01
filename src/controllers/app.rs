@@ -1,9 +1,7 @@
 use crate::db;
-use crate::models::App;
-use crate::schema::app;
+use crate::models::{App, AppForm};
+use crate::traits::CRUD;
 use actix_web::{web, HttpResponse, Responder};
-use diesel::{insert_into, prelude::*};
-use diesel::{AsChangeset, Insertable};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -12,23 +10,11 @@ pub struct AppParams {
 }
 
 pub async fn get_app(params: web::Query<AppParams>) -> impl Responder {
-    // given page_id return app
     let connection = db::get_db_connection();
 
-    let result = app::table
-        .filter(app::id.eq(params.id))
-        .first::<App>(&connection)
-        .expect("Error getting page");
+    let result = App::read(&connection, params.id).expect("App not found");
 
     web::Json(result)
-}
-
-#[derive(Deserialize, Insertable, AsChangeset)]
-#[table_name = "app"]
-pub struct AppForm {
-    pub name: String,
-    pub domain: String,
-    pub owner: i32,
 }
 
 pub async fn app_create(app_form: web::Json<AppForm>) -> impl Responder {
@@ -38,10 +24,7 @@ pub async fn app_create(app_form: web::Json<AppForm>) -> impl Responder {
 
     let connection = db::get_db_connection();
 
-    let result: App = insert_into(app::table)
-        .values(&*app_form)
-        .get_result(&connection)
-        .expect("Error in creating app");
+    let result = App::create(&connection, &app_form).expect("Error in creating app");
 
     web::Json(result)
 }
@@ -56,10 +39,7 @@ pub async fn app_update(
 
     let connection = db::get_db_connection();
 
-    let app = diesel::update(app::table.find(params.id))
-        .set(&*app_form)
-        .get_result::<App>(&connection)
-        .expect(&format!("Unable to find app with {}", params.id));
+    let app = App::update(&connection, params.id, &app_form).expect("Error in updating app");
 
     web::Json(app)
 }
@@ -68,10 +48,7 @@ pub async fn app_delete(params: web::Query<AppParams>) -> impl Responder {
     // TODO - throw error when app not found!!!
     let connection = db::get_db_connection();
 
-    let result = app::table.filter(app::id.eq(params.id));
-    let result = diesel::delete(result)
-        .execute(&connection)
-        .expect("Can't delete app");
+    let result = App::delete(&connection, params.id).expect("Error in deleting app");
 
     HttpResponse::Ok().json(result)
 }

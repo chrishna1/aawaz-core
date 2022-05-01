@@ -1,17 +1,14 @@
 use crate::db;
-use crate::models::Page;
-use crate::schema::page;
+use crate::models::{Page, PageForm};
+use crate::traits::CRUD;
 use actix_web::{web, HttpResponse, Responder};
-use diesel::{insert_into, prelude::*};
-use diesel::{AsChangeset, Insertable};
 use serde::Deserialize;
 
 pub async fn page_list() -> impl Responder {
     // given app_id returns all pages associated with the app.
     let connection = db::get_db_connection();
 
-    let results = page::table
-        .load::<Page>(&connection)
+    let results = Page::list(&connection, 1) // TODO - send app_id
         .expect("Error loading pages");
 
     web::Json(results)
@@ -26,19 +23,9 @@ pub async fn get_page(params: web::Query<PageParams>) -> impl Responder {
     // given page_id return page
     let connection = db::get_db_connection();
 
-    let result = page::table
-        .filter(page::id.eq(params.id))
-        .first::<Page>(&connection)
-        .expect("Error getting page");
+    let result = Page::read(&connection, params.id).expect("Error getting page");
 
     web::Json(result)
-}
-
-#[derive(Deserialize, Insertable, AsChangeset)]
-#[table_name = "page"]
-pub struct PageForm {
-    pub app_id: i32,
-    pub slug: String,
 }
 
 pub async fn page_create(page_form: web::Json<PageForm>) -> impl Responder {
@@ -48,10 +35,7 @@ pub async fn page_create(page_form: web::Json<PageForm>) -> impl Responder {
 
     let connection = db::get_db_connection();
 
-    let result: Page = insert_into(page::table)
-        .values(&*page_form)
-        .get_result(&connection)
-        .expect("Error in creating page");
+    let result: Page = Page::create(&connection, &page_form).expect("Error in creating page");
 
     web::Json(result)
 }
@@ -66,10 +50,7 @@ pub async fn page_update(
 
     let connection = db::get_db_connection();
 
-    let page = diesel::update(page::table.find(params.id))
-        .set(&*page_form)
-        .get_result::<Page>(&connection)
-        .expect(&format!("Unable to find page with {}", params.id));
+    let page = Page::update(&connection, params.id, &page_form).expect("Error in updating page");
 
     web::Json(page)
 }
@@ -78,10 +59,7 @@ pub async fn page_delete(params: web::Query<PageParams>) -> impl Responder {
     // TODO - throw error when page not found!!!
     let connection = db::get_db_connection();
 
-    let result = page::table.filter(page::id.eq(params.id));
-    let result = diesel::delete(result)
-        .execute(&connection)
-        .expect("Can't delete page");
+    let result = Page::delete(&connection, params.id).expect("Can't delete page");
 
     HttpResponse::Ok().json(result)
 }

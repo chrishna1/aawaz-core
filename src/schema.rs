@@ -56,9 +56,4 @@ diesel::joinable!(comment -> page (page_id));
 diesel::joinable!(comment -> users (user_id));
 diesel::joinable!(page -> app (app_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    app,
-    comment,
-    page,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(app, comment, page, users,);
