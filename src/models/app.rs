@@ -1,7 +1,6 @@
 use crate::schema::app;
 use crate::traits::CRUD;
 use diesel::{dsl::*, pg::PgConnection, result::Error, *};
-use uuid::Uuid;
 
 #[derive(Clone, Queryable, Identifiable, PartialEq, Debug, Serialize, Deserialize)]
 #[table_name = "app"]
@@ -22,7 +21,6 @@ pub struct AppForm {
     pub name: String,
     pub domain: String,
     pub owner: i32,
-    pub ext_id: Option<Uuid>,
 }
 
 impl CRUD for App {
