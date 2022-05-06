@@ -2,11 +2,11 @@ use crate::controllers::{app::*, comment::*, page::*, user::*};
 use actix_files::Files;
 use actix_web::web;
 
-pub fn config(cfg: &mut web::ServiceConfig) {
+pub fn config(cfg: &mut web::ServiceConfig, api_ver: &str) {
     cfg.service(
         web::scope("")
             .service(
-                web::scope("/api/v1")
+                web::scope(api_ver)
                     .route("/comments", web::get().to(comment_list))
                     .route("/comment", web::get().to(get_comment))
                     .route("/comment", web::put().to(comment_create))

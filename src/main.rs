@@ -8,7 +8,7 @@ pub async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         ActixWebApp::new()
-            .configure(|cfg| api_routes::config(cfg))
+            .configure(|cfg| api_routes::config(cfg, "/api/v1"))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
