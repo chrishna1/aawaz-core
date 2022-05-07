@@ -1,0 +1,59 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+name: Test
+
+jobs:
+  test:
+    name: Test
+    env:
+      RUST_BACKTRACE: 1
+      DATABASE_URL: postgres://postgres:postgres@localhost/aawaz
+      RUSTFLAGS: -D warnings
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-dependencies
+        with:
+          path: |
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            target
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Setup database
+        run: |
+          cargo install diesel_cli --no-default-features --features postgres --debug
+          diesel database setup --locked-schema
+
+      - name: Run tests
+        run: cargo test
