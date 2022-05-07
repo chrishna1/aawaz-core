@@ -28,6 +28,7 @@ create table app (
   updated_at timestamp
 );
 
+create unique index app_domain_uniq_idx ON app (lower(domain));
 
 
 create table page (
