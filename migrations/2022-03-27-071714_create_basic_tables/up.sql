@@ -3,7 +3,7 @@
 create table users ( -- plural as `user` is a reserved keyword.
   id serial primary key,
   ext_id UUID unique default gen_random_uuid () not null, -- id used externally(shown to the client)
-  username varchar(20) not null,
+  username varchar(50) not null,
   password text not null,
   name varchar(100), -- fullname
   -- https://dba.stackexchange.com/a/37021/177682
