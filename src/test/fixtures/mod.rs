@@ -1,5 +1,7 @@
 mod app;
+mod page;
 mod user;
 
-pub use self::app::app_1;
-pub use self::user::user_1;
+pub use self::app::*;
+pub use self::page::*;
+pub use self::user::*;

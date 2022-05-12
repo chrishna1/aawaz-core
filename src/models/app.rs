@@ -23,6 +23,11 @@ pub struct AppForm {
     pub owner: i32,
 }
 
+#[derive(Deserialize)]
+pub struct AppParams {
+    pub id: i32,
+}
+
 impl CRUD for App {
     type IdType = i32;
     type Form = AppForm;

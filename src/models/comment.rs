@@ -28,6 +28,11 @@ pub struct CommentForm {
     pub content: String,
 }
 
+#[derive(Deserialize)]
+pub struct CommentParams {
+    pub id: i32,
+}
+
 // TODO - since crud impls are similar everywhere, can it be derived.
 impl CRUD for Comment {
     type IdType = i32;

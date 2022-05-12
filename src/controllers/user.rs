@@ -1,13 +1,7 @@
 use crate::db;
-use crate::models::{User, UserForm};
+use crate::models::{User, UserForm, UserParams};
 use crate::traits::CRUD;
 use actix_web::{web, HttpResponse, Responder};
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-pub struct UserParams {
-    id: i32,
-}
 
 pub async fn get_user(params: web::Query<UserParams>) -> impl Responder {
     // given user_id return user
