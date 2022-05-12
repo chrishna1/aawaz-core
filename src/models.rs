@@ -1,7 +1,7 @@
-pub use self::app::{App, AppForm};
-pub use self::comment::{Comment, CommentForm};
-pub use self::page::{Page, PageForm};
-pub use self::users::{User, UserForm};
+pub use self::app::{App, AppForm, AppParams};
+pub use self::comment::{Comment, CommentForm, CommentParams};
+pub use self::page::{Page, PageForm, PageParams};
+pub use self::users::{User, UserForm, UserParams};
 
 mod app;
 mod comment;

@@ -1,14 +1,8 @@
 use crate::db;
-use crate::models::{App, AppForm};
+use crate::models::{App, AppForm, AppParams};
 use crate::traits::CRUD;
 use crate::util::EndpointResult;
 use actix_web::{web, HttpResponse};
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-pub struct AppParams {
-    id: i32,
-}
 
 pub async fn get_app(params: web::Query<AppParams>) -> EndpointResult {
     let connection = db::get_db_connection();
@@ -46,7 +40,6 @@ pub async fn app_update(
 }
 
 pub async fn app_delete(params: web::Query<AppParams>) -> EndpointResult {
-    // TODO - throw error when app not found!!!
     let connection = db::get_db_connection();
 
     App::delete(&connection, params.id)?;
@@ -82,7 +75,7 @@ mod tests {
             "owner": user_1.id
         });
 
-        let resp = TestRequest::put()
+        let resp = TestRequest::post()
             .uri("/app")
             .set_json(&request_body_app)
             .send_request(&mut service)
@@ -90,6 +83,8 @@ mod tests {
 
         assert_eq!(resp.status(), StatusCode::OK, "Failed to create app");
         let _app: App = test::read_body_json(resp).await;
+
+        // TODO test duplicate domain case
     }
 
     #[rstest]
@@ -127,7 +122,7 @@ mod tests {
             "owner": app_1.owner
         });
 
-        let resp = TestRequest::patch()
+        let resp = TestRequest::put()
             .uri(&format!("/app?id={}", app_1.id))
             .set_json(&req)
             .send_request(&mut service)

@@ -26,6 +26,11 @@ pub struct UserForm {
     pub password: String,
 }
 
+#[derive(Deserialize)]
+pub struct UserParams {
+    pub id: i32,
+}
+
 impl CRUD for User {
     type IdType = i32;
     type Form = UserForm;

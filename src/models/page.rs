@@ -20,6 +20,11 @@ pub struct PageForm {
     pub slug: String,
 }
 
+#[derive(Deserialize)]
+pub struct PageParams {
+    pub id: i32,
+}
+
 impl CRUD for Page {
     type IdType = i32;
     type Form = PageForm;

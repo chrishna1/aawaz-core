@@ -9,24 +9,21 @@ pub fn config(cfg: &mut web::ServiceConfig, api_ver: &str) {
                 web::scope(api_ver)
                     .route("/comments", web::get().to(comment_list))
                     .route("/comment", web::get().to(get_comment))
-                    .route("/comment", web::put().to(comment_create))
-                    .route("/comment", web::patch().to(comment_update))
+                    .route("/comment", web::post().to(comment_create))
+                    .route("/comment", web::put().to(comment_update))
                     .route("/comment", web::delete().to(comment_delete))
                     // page related routes
                     .route("/pages", web::get().to(page_list))
-                    .route("/page", web::get().to(get_page))
-                    .route("/page", web::put().to(page_create))
-                    .route("/page", web::patch().to(page_update))
-                    .route("/page", web::delete().to(page_delete))
+                    .route("/page", web::post().to(page_create))
                     // app related routes
                     .route("/app", web::get().to(get_app))
-                    .route("/app", web::put().to(app_create))
-                    .route("/app", web::patch().to(app_update))
+                    .route("/app", web::post().to(app_create))
+                    .route("/app", web::put().to(app_update))
                     .route("/app", web::delete().to(app_delete))
                     // user related routes
                     .route("/user", web::get().to(get_user))
-                    .route("/user", web::put().to(user_create))
-                    .route("/user", web::patch().to(user_update))
+                    .route("/user", web::post().to(user_create))
+                    .route("/user", web::put().to(user_update))
                     .route("/user", web::delete().to(user_delete)),
             )
             .service(

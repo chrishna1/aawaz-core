@@ -1,8 +1,7 @@
 use crate::db;
-use crate::models::{Comment, CommentForm};
+use crate::models::{Comment, CommentForm, CommentParams};
 use crate::traits::CRUD;
 use actix_web::{web, HttpResponse, Responder};
-use serde::Deserialize;
 
 pub async fn comment_list() -> impl Responder {
     let connection = db::get_db_connection();
@@ -11,11 +10,6 @@ pub async fn comment_list() -> impl Responder {
         .expect("Error loading tests");
 
     web::Json(results)
-}
-
-#[derive(Deserialize)]
-pub struct CommentParams {
-    id: i32,
 }
 
 pub async fn get_comment(params: web::Query<CommentParams>) -> impl Responder {
