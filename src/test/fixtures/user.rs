@@ -20,10 +20,10 @@ pub fn user_1() -> User {
 pub fn user_2() -> User {
     let conn = get_db_connection();
     let user_form = UserForm {
-        username: String::from("muntasir_1"),
-        name: Some(String::from("munatasir_1")),
-        email: String::from("muntasir_1@muntasir_1.com"),
-        password: String::from("muntasir_1"),
+        username: String::from("muntasir_2"),
+        name: Some(String::from("munatasir_2")),
+        email: String::from("muntasir_2@muntasir_2.com"),
+        password: String::from("muntasir_2"),
     };
     User::create(&conn, &user_form).unwrap()
 }
