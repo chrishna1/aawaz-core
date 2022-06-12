@@ -6,6 +6,7 @@ version = 3
 name = "aawaz"
 version = "0.1.0"
 dependencies = [
+ "actix-cors",
  "actix-files",
  "actix-rt 1.1.1",
  "actix-web",
@@ -38,6 +39,21 @@ dependencies = [
  "pin-project-lite 0.2.8",
  "tokio 1.17.0",
  "tokio-util",
+]
+
+[[package]]
+name = "actix-cors"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "414360eed71ba2d5435b185ba43ecbe281dfab5df3898286d6b7be8074372c92"
+dependencies = [
+ "actix-utils",
+ "actix-web",
+ "derive_more",
+ "futures-util",
+ "log",
+ "once_cell",
+ "smallvec",
 ]
 
 [[package]]
