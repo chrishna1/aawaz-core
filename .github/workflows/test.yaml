@@ -4,9 +4,10 @@ on:
     branches:
       - main
 
-name: Test
+name: Backend Test
 
 jobs:
+
   test:
     name: Test
     env:
@@ -52,8 +53,11 @@ jobs:
 
       - name: Setup database
         run: |
+          cd backend
           cargo install diesel_cli --no-default-features --features postgres --debug
           diesel database setup --locked-schema
 
       - name: Run tests
-        run: cargo test -- --test-threads 1
+        run: |
+          cd backend
+          cargo test -- --test-threads 1
