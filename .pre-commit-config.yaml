@@ -24,4 +24,6 @@ repos:
     hooks:
     -   id: fmt
         exclude: src/schema.rs
+        entry: bash -c 'cd backend && cargo fmt'
     -   id: cargo-check
+        entry: bash -c 'cd backend && cargo check'

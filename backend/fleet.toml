@@ -1,0 +1,5 @@
+rd_enabled = true
+fleet_id = "30a18e1d-8f07-4a4d-a189-baedc96ce7e3"
+
+[build]
+sccache = "/home/insoluble/.cargo/bin/sccache"
