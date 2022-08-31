@@ -14,6 +14,7 @@ pub mod api_routes;
 pub mod controllers;
 pub mod db;
 pub mod models;
+#[rustfmt::skip]
 pub mod schema;
 pub mod traits;
 pub mod util;
