@@ -122,11 +122,12 @@ mod tests {
     use rstest::rstest;
     use serde_json::json;
 
-    use crate::api_routes;
-    use crate::models::{Comment, Page, User};
-    use crate::test::fixtures::{comment_1, page_1, user_2};
+    use crate::models::{Comment, Page};
+    use crate::test::fixtures::{comment_1, page_1};
     use crate::test::transaction;
     use crate::test::Transaction;
+    use crate::traits::CRUD;
+    use crate::{api_routes, db};
 
     #[rstest]
     #[trace]
@@ -135,8 +136,15 @@ mod tests {
         let mut service =
             test::init_service(ActixApp::new().configure(|cfg| api_routes::config(cfg, ""))).await;
 
+        let url;
+        {
+            let conn = db::get_db_connection();
+            let page_1 = Page::read(&conn, comment_1.page_id).unwrap();
+            url = page_1.get_url(&conn).unwrap();
+        }
+
         let resp = TestRequest::get()
-            .uri(&format!("/comments?id={}", comment_1.page_id))
+            .uri(&format!("/comments?url={}", url))
             .send_request(&mut service)
             .await;
 
@@ -154,13 +162,18 @@ mod tests {
     #[rstest]
     #[trace]
     #[actix_rt::test]
-    async fn test_comment_create(_transaction: Transaction, page_1: Page, user_2: User) {
+    async fn test_comment_create(_transaction: Transaction, page_1: Page) {
         let mut service =
             test::init_service(ActixApp::new().configure(|cfg| api_routes::config(cfg, ""))).await;
 
+        let url;
+        {
+            let conn = db::get_db_connection();
+            url = page_1.get_url(&conn).unwrap();
+        }
+
         let req = json!({
-            "user_id": user_2.id,
-            "page_id": page_1.id,
+            "url": url,
             "content": String::from("behtareen"),
         });
 
@@ -172,8 +185,6 @@ mod tests {
 
         assert_eq!(resp.status(), StatusCode::OK, "Failed to create comment");
         let comment: Comment = test::read_body_json(resp).await;
-        assert_eq!(*req.get("user_id").unwrap(), comment.user_id);
-        assert_eq!(*req.get("page_id").unwrap(), comment.page_id);
         assert_eq!(*req.get("content").unwrap(), comment.content);
     }
 
