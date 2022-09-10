@@ -1,3 +1,4 @@
+use crate::models::App;
 use crate::schema::page;
 use crate::traits::CRUD;
 use diesel::{dsl::*, pg::PgConnection, result::Error, *};
@@ -69,5 +70,11 @@ impl Page {
             .filter(dsl::app_id.eq(app_id))
             .filter(dsl::path.eq(path))
             .first::<Self>(conn)
+    }
+
+    pub fn get_url(&self, conn: &PgConnection) -> Result<String, Error> {
+        let app = App::read(&conn, self.app_id)?;
+
+        Ok(String::from(app.domain) + &self.path)
     }
 }
