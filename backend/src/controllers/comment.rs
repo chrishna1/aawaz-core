@@ -132,6 +132,7 @@ mod tests {
     #[rstest]
     #[trace]
     #[actix_rt::test]
+    #[cfg_attr(feature = "ci", ignore)]
     async fn test_comment_list(_transaction: Transaction, comment_1: Comment) {
         let mut service =
             test::init_service(ActixApp::new().configure(|cfg| api_routes::config(cfg, ""))).await;
@@ -162,6 +163,7 @@ mod tests {
     #[rstest]
     #[trace]
     #[actix_rt::test]
+    #[cfg_attr(feature = "ci", ignore)]
     async fn test_comment_create(_transaction: Transaction, page_1: Page) {
         let mut service =
             test::init_service(ActixApp::new().configure(|cfg| api_routes::config(cfg, ""))).await;
