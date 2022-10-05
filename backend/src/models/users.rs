@@ -31,6 +31,27 @@ pub struct UserParams {
     pub id: i32,
 }
 
+#[derive(Serialize)]
+#[cfg_attr(test, derive(Deserialize))]
+pub struct UserResponse {
+    pub id: i32,
+    pub username: String,
+    pub name: Option<String>,
+    pub created_at: chrono::NaiveDateTime,
+}
+
+impl From<User> for UserResponse {
+    fn from(u: User) -> Self {
+        // TODO(improve) better way?
+        Self {
+            id: u.id,
+            username: u.username,
+            name: u.name,
+            created_at: u.created_at,
+        }
+    }
+}
+
 impl CRUD for User {
     type IdType = i32;
     type Form = UserForm;

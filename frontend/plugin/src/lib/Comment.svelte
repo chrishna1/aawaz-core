@@ -21,7 +21,7 @@
 >
   <div class="flex items-center">
     <div class="mr-2 font-medium dark:text-gray-100">
-      {comment.moderator && comment.moderator.displayName ? comment.moderator.displayName : comment.by_nickname}
+      {comment.user.name}
     </div>
 
     {#if comment.moderatorId}
@@ -31,8 +31,15 @@
     {/if}
   </div>
 
-  <div class="text-gray-500 text-sm dark:text-gray-400">
-    {comment.created_at}
+  <div class="text-gray-500 text-sm dark:text-gray-400" title="{comment.created_at}">
+    {new Date(comment.created_at).toLocaleDateString('en-us', {
+        year:"numeric",
+        month:"short",
+        day:"numeric",
+        hour: "numeric",
+        minute: "numeric"
+    })}
+
   </div>
 
   <div class="text-gray-500 my-2 dark:text-gray-200">

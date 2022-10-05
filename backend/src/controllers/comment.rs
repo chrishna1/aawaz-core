@@ -1,6 +1,7 @@
 use crate::db;
 use crate::models::{
-    App, Comment, CommentForm, CommentParams, CommentPayload, Page, PageForm, PagePayload,
+    App, Comment, CommentForm, CommentListResponse, CommentParams, CommentPayload, Page, PageForm,
+    PagePayload, UserResponse,
 };
 use crate::traits::CRUD;
 use crate::util::EndpointResult;
@@ -39,7 +40,17 @@ pub async fn comment_list(pp: web::Query<PagePayload>) -> EndpointResult {
 
     let result = Comment::list(&connection, page.id)?;
 
-    Ok(HttpResponse::Ok().json(result))
+    let mut comment_list = vec![];
+
+    for (comment, user) in result {
+        let cr = CommentListResponse {
+            comment,
+            user: UserResponse::from(user),
+        };
+        comment_list.push(cr);
+    }
+
+    Ok(HttpResponse::Ok().json(comment_list))
 }
 
 pub async fn get_comment(params: web::Query<CommentParams>) -> EndpointResult {
@@ -122,7 +133,7 @@ mod tests {
     use rstest::rstest;
     use serde_json::json;
 
-    use crate::models::{Comment, Page};
+    use crate::models::{Comment, CommentListResponse, Page};
     use crate::test::fixtures::{comment_1, page_1};
     use crate::test::transaction;
     use crate::test::Transaction;
@@ -155,9 +166,11 @@ mod tests {
             "Failed to get list of comments"
         );
 
-        let comments: Vec<Comment> = test::read_body_json(resp).await;
+        let comments: Vec<CommentListResponse> = test::read_body_json(resp).await;
         assert_eq!(comments.len(), 1);
-        assert_eq!(comment_1, comments[0]);
+        assert_eq!(comment_1.id, comments[0].comment.id);
+        assert_eq!(comment_1.content, comments[0].comment.content);
+        assert_eq!(comment_1.user_id, comments[0].user.id);
     }
 
     #[rstest]

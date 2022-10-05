@@ -1,3 +1,4 @@
+use super::{User, UserResponse};
 use crate::schema::comment;
 use crate::traits::CRUD;
 use diesel::{dsl::*, pg::PgConnection, result::Error, *};
@@ -39,6 +40,14 @@ pub struct CommentParams {
     pub id: i32,
 }
 
+#[derive(Serialize)]
+#[cfg_attr(test, derive(Deserialize))]
+pub struct CommentListResponse {
+    #[serde(flatten)]
+    pub comment: Comment,
+    pub user: UserResponse,
+}
+
 // TODO - since crud impls are similar everywhere, can it be derived.
 impl CRUD for Comment {
     type IdType = i32;
@@ -68,11 +77,13 @@ impl CRUD for Comment {
 }
 
 impl Comment {
-    pub fn list(conn: &PgConnection, page_id: i32) -> Result<Vec<Self>, Error> {
-        use crate::schema::comment::dsl;
+    pub fn list(conn: &PgConnection, page_id: i32) -> Result<Vec<(Comment, User)>, Error> {
+        use crate::schema::users;
 
-        dsl::comment
-            .filter(dsl::page_id.eq(page_id))
-            .load::<Comment>(conn)
+        comment::table
+            .inner_join(users::table)
+            .select((comment::all_columns, users::all_columns))
+            .filter(comment::page_id.eq(page_id))
+            .load(conn)
     }
 }
