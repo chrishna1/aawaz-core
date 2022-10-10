@@ -46,12 +46,6 @@
     {comment.content}
   </div>
 
-  <!-- {#if comment.replies.data.length > 0}
-    {#each comment.replies.data as child (child.id)}
-      <svelte:self isChild={true} comment={child} />
-    {/each}
-  {/if} -->
-
   <div>
     <button
       class="font-medium text-sm text-gray-500 dark:bg-transparent dark:text-gray-100"
@@ -74,5 +68,10 @@
     </div>
   {/if}
 
+  {#if comment.children && comment.children.length}
+    {#each comment.children as child (child.id)}
+      <svelte:self comment={child} isChild={true}/>
+    {/each}
+  {/if}
 
 </div>

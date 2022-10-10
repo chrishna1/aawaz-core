@@ -1,12 +1,54 @@
 use crate::db;
 use crate::models::{
     App, Comment, CommentForm, CommentListResponse, CommentParams, CommentPayload, Page, PageForm,
-    PagePayload, UserResponse,
+    PagePayload, User, UserResponse,
 };
 use crate::traits::CRUD;
 use crate::util::EndpointResult;
 use actix_web::{web, HttpResponse};
 use url::Url;
+
+fn get_threaded_list(
+    flat_list: &Vec<(Comment, User)>,
+    root: Option<i32>,
+) -> Box<Vec<CommentListResponse>> {
+    // TODO(important) - optimize!!
+    // even for flat comment(with nesting), it O(n^2).. fix it asap..
+    // may be create set of comment id and that for lookup to being with
+
+    let mut needs_threading = false;
+
+    for (comment, _user) in flat_list {
+        if comment.parent_id == root {
+            needs_threading = true;
+            break;
+        }
+    }
+
+    if !needs_threading {
+        return Box::new(vec![]);
+    }
+
+    let mut threaded_list = vec![];
+
+    for (comment, user) in flat_list {
+        if comment.parent_id == root {
+            // top level comments
+            let mut clr = CommentListResponse {
+                comment: comment.clone(),
+                user: UserResponse::from(user.clone()),
+                children: None,
+            };
+            let children = get_threaded_list(flat_list, Some(comment.id));
+
+            clr.children = Some(children);
+
+            threaded_list.push(clr);
+        };
+    }
+
+    return Box::new(threaded_list);
+}
 
 pub async fn comment_list(pp: web::Query<PagePayload>) -> EndpointResult {
     // TODO - get comment list given url (domain with path, e.g kaviraj.in/to-kamao-bsdk)..
@@ -40,15 +82,7 @@ pub async fn comment_list(pp: web::Query<PagePayload>) -> EndpointResult {
 
     let result = Comment::list(&connection, page.id)?;
 
-    let mut comment_list = vec![];
-
-    for (comment, user) in result {
-        let cr = CommentListResponse {
-            comment,
-            user: UserResponse::from(user),
-        };
-        comment_list.push(cr);
-    }
+    let comment_list = get_threaded_list(&result, None);
 
     Ok(HttpResponse::Ok().json(comment_list))
 }
@@ -134,7 +168,7 @@ mod tests {
     use serde_json::json;
 
     use crate::models::{Comment, CommentListResponse, Page};
-    use crate::test::fixtures::{comment_1, page_1};
+    use crate::test::fixtures::{comment_1, comment_with_threads_1, page_1};
     use crate::test::transaction;
     use crate::test::Transaction;
     use crate::traits::CRUD;
@@ -171,6 +205,53 @@ mod tests {
         assert_eq!(comment_1.id, comments[0].comment.id);
         assert_eq!(comment_1.content, comments[0].comment.content);
         assert_eq!(comment_1.user_id, comments[0].user.id);
+    }
+
+    #[rstest]
+    #[trace]
+    #[actix_rt::test]
+    #[cfg_attr(feature = "ci", ignore)]
+    async fn test_threaded_comment_list(
+        _transaction: Transaction,
+        comment_with_threads_1: (Comment, Comment),
+    ) {
+        // TODO - add more threaded comment test.
+        let (root_comment, child_comment) = comment_with_threads_1;
+        let mut service =
+            test::init_service(ActixApp::new().configure(|cfg| api_routes::config(cfg, ""))).await;
+
+        let url;
+        {
+            let conn = db::get_db_connection();
+            let page_1 = Page::read(&conn, root_comment.page_id).unwrap();
+            url = page_1.get_url(&conn).unwrap();
+        }
+
+        let resp = TestRequest::get()
+            .uri(&format!("/comments?url={}", url))
+            .send_request(&mut service)
+            .await;
+
+        assert_eq!(
+            resp.status(),
+            StatusCode::OK,
+            "Failed to get list of comments"
+        );
+
+        let comments: Vec<CommentListResponse> = test::read_body_json(resp).await;
+        assert_eq!(comments.len(), 1);
+        assert_eq!(root_comment.id, comments[0].comment.id);
+        assert_eq!(root_comment.content, comments[0].comment.content);
+        assert_eq!(root_comment.user_id, comments[0].user.id);
+
+        // using whatever fn(as_ref, to_vec) editor is suggesting.. lol..
+        let child = comments[0].children.as_ref().unwrap();
+        assert_eq!(1, child.len());
+        assert_eq!(child_comment.id, child[0].comment.id);
+
+        let child = child.to_vec();
+        let grand_child = child[0].children.as_ref().unwrap();
+        assert_eq!(0, grand_child.len());
     }
 
     #[rstest]

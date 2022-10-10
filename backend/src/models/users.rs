@@ -31,8 +31,8 @@ pub struct UserParams {
     pub id: i32,
 }
 
-#[derive(Serialize)]
-#[cfg_attr(test, derive(Deserialize))]
+#[derive(Clone, Serialize)]
+#[cfg_attr(test, derive(Deserialize, PartialEq, Debug))]
 pub struct UserResponse {
     pub id: i32,
     pub username: String,

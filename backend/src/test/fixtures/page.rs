@@ -24,3 +24,13 @@ pub fn page_2(app_1: App) -> Page {
     };
     Page::create(&conn, &page_form).unwrap()
 }
+
+#[fixture]
+pub fn page_with_threads(app_1: App) -> Page {
+    let conn = get_db_connection();
+    let page_form = PageForm {
+        app_id: app_1.id,
+        path: String::from("/ajeeb-dastan-hai-ye"),
+    };
+    Page::create(&conn, &page_form).unwrap()
+}

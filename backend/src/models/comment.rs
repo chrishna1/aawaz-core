@@ -8,6 +8,7 @@ use diesel::{dsl::*, pg::PgConnection, result::Error, *};
 )]
 #[table_name = "comment"]
 pub struct Comment {
+    // TODO: use u32 ???
     pub id: i32,
     pub ext_id: uuid::Uuid,
     pub user_id: i32,
@@ -40,12 +41,13 @@ pub struct CommentParams {
     pub id: i32,
 }
 
-#[derive(Serialize)]
-#[cfg_attr(test, derive(Deserialize))]
+#[derive(Clone, Serialize)]
+#[cfg_attr(test, derive(Deserialize, PartialEq, Debug))]
 pub struct CommentListResponse {
     #[serde(flatten)]
     pub comment: Comment,
     pub user: UserResponse,
+    pub children: Option<Box<Vec<CommentListResponse>>>,
 }
 
 // TODO - since crud impls are similar everywhere, can it be derived.
