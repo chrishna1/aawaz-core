@@ -8,7 +8,7 @@
   let nickname = ''
   let email = ''
 
-  let loading = true
+  let loading = false
 
   export let onSuccess
 
@@ -50,7 +50,7 @@
       teardown()
       setMessage(t('comment_has_been_sent'))
     } finally {
-      loading = true
+      loading = false
     }
   }
 
