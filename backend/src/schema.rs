@@ -28,6 +28,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    oauth (id) {
+        id -> Int4,
+        user_id -> Int4,
+        provider_id -> Text,
+        provider -> Varchar,
+        access_token -> Text,
+        refresh_token -> Nullable<Text>,
+        expires_at -> Nullable<Int4>,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     page (id) {
         id -> Int4,
         ext_id -> Uuid,
@@ -44,7 +58,7 @@ diesel::table! {
         id -> Int4,
         ext_id -> Uuid,
         username -> Varchar,
-        password -> Text,
+        password -> Nullable<Text>,
         name -> Nullable<Varchar>,
         email -> Varchar,
         created_at -> Timestamp,
@@ -55,11 +69,13 @@ diesel::table! {
 diesel::joinable!(app -> users (owner));
 diesel::joinable!(comment -> page (page_id));
 diesel::joinable!(comment -> users (user_id));
+diesel::joinable!(oauth -> users (user_id));
 diesel::joinable!(page -> app (app_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     app,
     comment,
+    oauth,
     page,
     users,
 );

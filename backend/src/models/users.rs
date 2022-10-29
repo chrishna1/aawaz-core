@@ -10,7 +10,7 @@ pub struct User {
     pub id: i32,
     pub ext_id: uuid::Uuid,
     pub username: String,
-    pub password: String,
+    pub password: Option<String>,
     pub name: Option<String>,
     pub email: String,
     pub created_at: chrono::NaiveDateTime,
@@ -23,7 +23,7 @@ pub struct UserForm {
     pub username: String,
     pub name: Option<String>,
     pub email: String,
-    pub password: String,
+    pub password: Option<String>,
 }
 
 #[derive(Deserialize)]

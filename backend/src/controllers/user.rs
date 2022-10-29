@@ -165,7 +165,7 @@ mod tests {
         assert_eq!(*req.get("name").unwrap(), user.name.unwrap());
         assert_eq!(*req.get("username").unwrap(), user.username);
         assert_eq!(*req.get("email").unwrap(), user.email);
-        assert_eq!(*req.get("password").unwrap(), user.password);
+        assert_eq!(*req.get("password").unwrap(), user.password.unwrap());
     }
 
     #[rstest]

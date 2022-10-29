@@ -11,7 +11,7 @@ pub fn user_1() -> User {
         username: String::from("muntasir"),
         name: Some(String::from("munatasir")),
         email: String::from("muntasir@muntasir.com"),
-        password: String::from("muntasir"),
+        password: Some(String::from("muntasir")),
     };
     User::create(&conn, &user_form).unwrap()
 }
@@ -23,7 +23,7 @@ pub fn user_2() -> User {
         username: String::from("muntasir_2"),
         name: Some(String::from("munatasir_2")),
         email: String::from("muntasir_2@muntasir_2.com"),
-        password: String::from("muntasir_2"),
+        password: Some(String::from("muntasir_2")),
     };
     User::create(&conn, &user_form).unwrap()
 }
