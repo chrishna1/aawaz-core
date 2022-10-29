@@ -78,3 +78,10 @@ impl CRUD for User {
         delete(users.find(user_id)).execute(conn)
     }
 }
+
+impl User {
+    pub fn from_email(conn: &PgConnection, email: &str) -> Result<User, Error> {
+        use crate::schema::users::dsl;
+        dsl::users.filter(dsl::email.eq(email)).first::<Self>(conn)
+    }
+}

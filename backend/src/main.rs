@@ -15,7 +15,7 @@ pub async fn main() -> std::io::Result<()> {
             )
             .configure(|cfg| api_routes::config(cfg, "/api/v1"))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", 8080))? // TODO - pick this from env variable
     .run()
     .await
 }
