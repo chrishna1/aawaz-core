@@ -1,5 +1,6 @@
 use crate::traits::CRUD;
 use crate::{db, models::UserForm};
+use actix_session::Session;
 use actix_web::http::{header, Method};
 use actix_web::{web, HttpResponse};
 use diesel::insert_into;
@@ -137,7 +138,7 @@ pub async fn login() -> EndpointResult {
         TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://127.0.0.1:8080/auth/github/callback"), // TODO - construct this from env variable
+        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
     )
     .unwrap();
 
@@ -159,7 +160,7 @@ pub async fn login() -> EndpointResult {
         .finish())
 }
 
-pub async fn callback(params: web::Query<AuthRequest>) -> EndpointResult {
+pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> EndpointResult {
     dotenv().ok();
 
     let client_id = ClientId::new(
@@ -175,7 +176,7 @@ pub async fn callback(params: web::Query<AuthRequest>) -> EndpointResult {
         TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://127.0.0.1:8080/auth/github/callback"), // TODO - construct this from env variable
+        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
     )
     .unwrap();
 
@@ -205,6 +206,8 @@ pub async fn callback(params: web::Query<AuthRequest>) -> EndpointResult {
     let connection = db::get_db_connection();
     let existing_user = User::from_email(&connection, &email);
 
+    let mut uid;
+
     if existing_user.is_err() {
         // email not found!! create new user
         let form = UserForm {
@@ -215,13 +218,15 @@ pub async fn callback(params: web::Query<AuthRequest>) -> EndpointResult {
         };
 
         // TODO!!! - make following two insert atomic!!
-        let user = match User::create(&connection, &form) {
+        let new_user = match User::create(&connection, &form) {
             Ok(user) => user,
             Err(_) => return Ok(HttpResponse::InternalServerError().json("User creation failed")),
         };
 
+        uid = new_user.id;
+
         let form = OauthForm {
-            user_id: user.id,
+            user_id: new_user.id,
             provider_id: user_response.id.to_string(),
             provider: String::from("github"),
             access_token: token.access_token().secret().to_string(),
@@ -241,11 +246,14 @@ pub async fn callback(params: web::Query<AuthRequest>) -> EndpointResult {
             .values(form)
             .execute(&connection)
             .unwrap();
-
-        // println!("{:?}", oauth_obj)
+    } else {
+        uid = existing_user.unwrap().id;
     }
 
-    // set session
+    // set session cookie
+    session
+        .insert("uid", uid)
+        .expect("Error in storing session");
 
     Ok(HttpResponse::Ok().json(None::<bool>))
 }

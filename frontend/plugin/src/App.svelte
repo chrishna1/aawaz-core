@@ -17,6 +17,7 @@
 
   const api = axios.create({
     baseURL: attrs.host,
+    withCredentials: true // adds cookie..
   })
 
   setContext('api', api)

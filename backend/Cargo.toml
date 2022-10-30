@@ -11,6 +11,7 @@ actix-cors = "0.6"
 actix-web = "4"
 actix-rt = "1.0"
 actix-files = "0.6.0"
+actix-session = { version = "0.7.2", features = ["cookie-session"] }
 log = "0.4"
 diesel = { version = "1.4.8", features = ["postgres", "uuidv07", "chrono", "r2d2", "serde_json"] }
 diesel_migrations =  { version = "=1.4.0", features = ["postgres"] }
