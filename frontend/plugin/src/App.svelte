@@ -5,9 +5,12 @@
   import Comment from './lib/Comment.svelte'
   import Reply from './lib/CommentForm.svelte'
   import Brand from './lib/Brand.svelte'
+  import LoginStatus from './lib/LoginStatus.svelte';
 
   export let attrs
 
+  let isLoggedIn = false;
+  let userInfo;
   let commentsResult
   let error
   let loading = true
@@ -15,16 +18,27 @@
   let theme = attrs.theme || 'light'
   console.log('theme :>> ', theme);
 
+
   const api = axios.create({
     baseURL: attrs.host,
     withCredentials: true // adds cookie..
   })
 
+
   setContext('api', api)
   setContext('attrs', attrs)
   setContext('refresh', getComments)
   setContext('setMessage', setMessage)
+  setContext('userInfo', userInfo)
+  setContext('isLoggedIn', isLoggedIn)
 
+  setContext('userInfo', {
+    getUserInfo: () => userInfo
+  });
+
+  setContext('isLoggedIn', {
+    getIsLoggedIn: () => isLoggedIn
+  });
 
   function setMessage(msg) {
     message = msg
@@ -47,6 +61,28 @@
       loading = false
     }
   }
+
+  async function fetchUserInfo() {
+      try {
+          const res = await api.get(`/api/v1/me`, {
+            params: {
+                url: window.parent.location.href,
+            //   appId: attrs.appId,
+            //   pageId: attrs.pageId,
+            },
+          })
+          if(!res.data) {
+            return
+          }
+          isLoggedIn = true;
+          console.log("set isloggedin as true")
+          userInfo = res.data;
+      } catch (e) {
+        console.error(e)
+          error = e;
+      }
+  }
+
 
   onMount(() => {
 
@@ -72,13 +108,21 @@
   })
 
   onMount(() => {
-    getComments()
+    getComments();
+    fetchUserInfo();
   })
 
 </script>
 
 {#if !error}
   <div class:dark={theme === 'dark'}>
+
+    {#if isLoggedIn}
+      <div class="text-end">
+        <LoginStatus />
+      </div>
+    {/if}
+
     {#if message}
       <div class="p-2 mb-4 bg-blue-500 text-white">
         {message}

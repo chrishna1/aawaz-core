@@ -29,9 +29,9 @@ function getSrcDoc() {
   <head>
       <base target="_parent" />
   </head>
-  <body onLoad="resize();">
+  <body>
     <div id="root"></div>
-    <script src="http://localhost:8081/plugin.es.js"></script>
+    <script src="http://localhost:8081/plugin.umd.js"></script>
     <link rel="stylesheet" href="http://localhost:8081/style.css">
   </body>
 </html>`;

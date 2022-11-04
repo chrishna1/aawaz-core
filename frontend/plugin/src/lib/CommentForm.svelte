@@ -3,12 +3,15 @@
   import { t } from '../i18n'
   export let parentId
 
+  import Auth from './Auth.svelte'
+
   // form data
   let content = ''
   let nickname = ''
   let email = ''
 
   let loading = false
+  let authPopup = false
 
   export let onSuccess
 
@@ -16,8 +19,18 @@
   const setMessage = getContext('setMessage')
   const { appId, pageId, pageUrl, pageTitle } = getContext('attrs')
   const refresh = getContext('refresh')
+  let { getIsLoggedIn } = getContext('isLoggedIn')
+  const isLoggedIn = getIsLoggedIn()
+  console.log("xxx isLoggedIn::", isLoggedIn)
+
+
 
   async function addComment() {
+    if (!isLoggedIn) {
+      authPopup = true
+      return
+    }
+
     if (!content) {
       alert(t('content_is_required'))
       return
@@ -64,6 +77,11 @@
 </script>
 
 <div class="grid grid-cols-1 gap-4">
+
+  {#if authPopup}
+    <Auth defaultModal={authPopup}/>
+  {/if}
+
   <div class="grid grid-cols-2 gap-4">
     <div class="px-1">
       <label class="mb-2 block dark:text-gray-200" for="nickname">{t('nickname')}</label>
