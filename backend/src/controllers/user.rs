@@ -2,7 +2,21 @@ use crate::db;
 use crate::models::{User, UserForm, UserParams};
 use crate::traits::CRUD;
 use crate::util::EndpointResult;
+use actix_session::Session;
 use actix_web::{web, HttpResponse};
+
+pub async fn get_current_user(session: Session) -> EndpointResult {
+    match session.get("uid").unwrap() {
+        Some(uid) => {
+            let connection = db::get_db_connection();
+
+            let result = User::read(&connection, uid)?;
+
+            return Ok(HttpResponse::Ok().json(result));
+        }
+        None => return Ok(HttpResponse::Ok().json(None::<bool>)),
+    }
+}
 
 pub async fn get_user(params: web::Query<UserParams>) -> EndpointResult {
     // given user_id return user

@@ -23,6 +23,7 @@ pub fn config(cfg: &mut web::ServiceConfig, api_ver: &str) {
                     .route("/app", web::put().to(app_update))
                     .route("/app", web::delete().to(app_delete))
                     // user related routes
+                    .route("/me", web::get().to(get_current_user))
                     .route("/user", web::get().to(get_user))
                     .route("/user", web::post().to(user_create))
                     .route("/user", web::put().to(user_update))
