@@ -206,7 +206,7 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
     let connection = db::get_db_connection();
     let existing_user = User::from_email(&connection, &email);
 
-    let mut uid;
+    let uid;
 
     if existing_user.is_err() {
         // email not found!! create new user

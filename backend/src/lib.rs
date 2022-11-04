@@ -12,7 +12,7 @@ mod test;
 
 pub mod api_routes;
 mod controllers;
-mod db;
+pub mod db;
 mod models;
 #[rustfmt::skip]
 mod schema;

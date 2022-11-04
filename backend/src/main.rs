@@ -5,11 +5,13 @@ use actix_web::{
     App as ActixWebApp, HttpServer,
 };
 
-use aawaz::api_routes;
+use aawaz::{api_routes, db};
 
 #[rustfmt::skip]
 #[actix_web::main]
 pub async fn main() -> std::io::Result<()> {
+
+    db::init();
 
     HttpServer::new(|| {
         ActixWebApp::new()

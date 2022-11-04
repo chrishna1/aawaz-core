@@ -6,7 +6,6 @@ use diesel::Connection;
 use diesel_migrations::*;
 use dotenv::dotenv;
 use lazy_static::lazy_static;
-use log::info;
 use r2d2;
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -26,14 +25,14 @@ lazy_static! {
 }
 
 pub fn init() {
-    info!("Initializing Database");
+    println!("Initializing Database");
     lazy_static::initialize(&POOL);
     let conn = get_db_connection();
     if cfg!(test) {
         conn.begin_test_transaction()
             .expect("Failed to start transaction");
     }
-    embedded_migrations::run(&conn).unwrap();
+    embedded_migrations::run_with_output(&conn, &mut std::io::stdout()).unwrap();
 }
 
 pub fn get_db_connection() -> DbConnection {
