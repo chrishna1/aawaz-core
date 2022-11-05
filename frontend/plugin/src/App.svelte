@@ -137,7 +137,7 @@
 
     <div class="my-8" />
 
-    <div class="mt-4 px-1">
+    <div class="mt-4">
       {#if loading}
         <div class="text-gray-900 dark:text-gray-100">
           {t('loading')}...
