@@ -1,5 +1,6 @@
 <script>
   import { onMount, setContext } from 'svelte'
+  import { writable } from 'svelte/store';
   import axios from 'redaxios'
   import { t } from './i18n'
   import Comment from './lib/Comment.svelte'
@@ -29,16 +30,14 @@
   setContext('attrs', attrs)
   setContext('refresh', getComments)
   setContext('setMessage', setMessage)
-  setContext('userInfo', userInfo)
-  setContext('isLoggedIn', isLoggedIn)
 
-  setContext('userInfo', {
-    getUserInfo: () => userInfo
-  });
+  let reactiveStates = {
+    isLoggedIn,
+    userInfo,
+  }
 
-  setContext('isLoggedIn', {
-    getIsLoggedIn: () => isLoggedIn
-  });
+  let state = writable(reactiveStates);
+  setContext('state', state);
 
   function setMessage(msg) {
     message = msg
@@ -75,8 +74,13 @@
             return
           }
           isLoggedIn = true;
-          console.log("set isloggedin as true")
           userInfo = res.data;
+
+          $state = {
+            isLoggedIn,
+            userInfo
+          }
+
       } catch (e) {
         console.error(e)
           error = e;

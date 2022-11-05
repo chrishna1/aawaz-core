@@ -19,14 +19,10 @@
   const setMessage = getContext('setMessage')
   const { appId, pageId, pageUrl, pageTitle } = getContext('attrs')
   const refresh = getContext('refresh')
-  let { getIsLoggedIn } = getContext('isLoggedIn')
-  const isLoggedIn = getIsLoggedIn()
-  console.log("xxx isLoggedIn::", isLoggedIn)
-
-
+  let state = getContext('state')
 
   async function addComment() {
-    if (!isLoggedIn) {
+    if (!$state.isLoggedIn) {
       authPopup = true
       return
     }

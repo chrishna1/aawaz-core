@@ -4,26 +4,24 @@
 
   let username;
   const api = getContext('api')
-  let { getUserInfo } = getContext('userInfo')
-  let { getIsLoggedIn } = getContext('isLoggedIn')
-  const userInfo = getUserInfo()
-  const isLoggedIn = getIsLoggedIn()
-  console.log("isLoggedIn::", isLoggedIn)
-  console.log("userInfo::", userInfo)
+  let state = getContext('state')
 
   async function logout() {
     await api.get('/logout')
-    isLoggedIn = false
+    $state = {
+      isLoggedIn: false,
+      userInfo: null
+    }
   }
 </script>
 
 
-{#if isLoggedIn}
-  <Button><Chevron>{userInfo.username}</Chevron></Button>
+{#if $state.isLoggedIn}
+  <Button><Chevron>{$state.userInfo.username}</Chevron></Button>
   <Dropdown>
     <div slot="header" class="px-4 py-2">
-      <span class="block text-sm text-gray-900 dark:text-white"> {userInfo.name} </span>
-      <span class="block truncate text-sm font-medium"> {userInfo.email} </span>
+      <span class="block text-sm text-gray-900 dark:text-white"> {$state.userInfo.name} </span>
+      <span class="block truncate text-sm font-medium"> {$state.userInfo.email} </span>
     </div>
     <DropdownItem>Settings</DropdownItem>
     <DropdownItem slot="footer" on:click={logout}>Log out</DropdownItem>
