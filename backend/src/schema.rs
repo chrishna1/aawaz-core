@@ -62,6 +62,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    user_extra (id) {
+        id -> Int4,
+        user_id -> Int4,
+        source -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         ext_id -> Uuid,
@@ -79,6 +89,7 @@ diesel::joinable!(comment -> page (page_id));
 diesel::joinable!(comment -> users (user_id));
 diesel::joinable!(oauth -> users (user_id));
 diesel::joinable!(page -> app (app_id));
+diesel::joinable!(user_extra -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     app,
@@ -86,5 +97,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     oauth,
     oauth_states,
     page,
+    user_extra,
     users,
 );

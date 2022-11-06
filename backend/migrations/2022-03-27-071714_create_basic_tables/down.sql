@@ -5,4 +5,5 @@ drop table page;
 drop table app;
 drop table oauth;
 drop table oauth_states;
+drop table user_extra;
 drop table users;

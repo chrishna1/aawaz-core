@@ -1,5 +1,5 @@
+use crate::models::{OAuthStates, OAuthStatesForm, StateData, UserExtra, UserExtraForm};
 use crate::traits::CRUD;
-use crate::models::{OAuthStatesForm, StateData, OAuthStates};
 use crate::{db, models::UserForm};
 use actix_session::Session;
 use actix_web::http::{header, Method};
@@ -36,7 +36,6 @@ pub struct GhEmail {
     primary: bool,
     // verified: bool TODO - send verification email for unverified.
 }
-
 
 #[derive(Deserialize)]
 pub struct OauthPayload {
@@ -161,11 +160,10 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
 
     let form = OAuthStatesForm {
         state_id: state_token.clone().secret().to_string(),
-        state_data: serde_json::to_value(
-            StateData{
-                url: params.url.clone()
-            }
-        ).unwrap()
+        state_data: serde_json::to_value(StateData {
+            url: params.url.clone(),
+        })
+        .unwrap(),
     };
 
     OAuthStates::create(&connection, &form).unwrap();
@@ -179,8 +177,7 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, auth_url.to_string()))
-        .finish()
-    )
+        .finish())
 }
 
 pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> EndpointResult {
@@ -212,7 +209,6 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
     let connection = db::get_db_connection();
     let store = OAuthStates::from_state_id(&connection, state.secret()).unwrap();
     let state_data: StateData = serde_json::from_value(store.state_data).unwrap();
-
 
     let token = client
         .exchange_code(code)
@@ -277,6 +273,13 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         uid = existing_user.unwrap().id;
     }
 
+    let form = UserExtraForm {
+        user_id: uid,
+        source: Some(state_data.url.clone()),
+    };
+
+    UserExtra::create(&connection, form).unwrap();
+
     // set session cookie
     session
         .insert("uid", uid)
@@ -284,7 +287,5 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, state_data.url))
-        .finish()
-    )
-
+        .finish())
 }

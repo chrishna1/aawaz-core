@@ -1,4 +1,4 @@
-use crate::schema::users;
+use crate::schema::{user_extra, users};
 use crate::traits::CRUD;
 use diesel::{dsl::*, pg::PgConnection, result::Error, *};
 
@@ -83,5 +83,31 @@ impl User {
     pub fn from_email(conn: &PgConnection, email: &str) -> Result<User, Error> {
         use crate::schema::users::dsl;
         dsl::users.filter(dsl::email.eq(email)).first::<Self>(conn)
+    }
+}
+
+#[derive(
+    Clone, Queryable, Associations, Identifiable, PartialEq, Debug, Serialize, Deserialize,
+)]
+#[table_name = "user_extra"]
+pub struct UserExtra {
+    pub id: i32,
+    pub user_id: i32,
+    pub source: Option<String>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: Option<chrono::NaiveDateTime>,
+}
+
+#[derive(Deserialize, Insertable, AsChangeset)]
+#[table_name = "user_extra"]
+pub struct UserExtraForm {
+    pub user_id: i32,
+    pub source: Option<String>,
+}
+
+impl UserExtra {
+    pub fn create(conn: &PgConnection, form: UserExtraForm) -> Result<UserExtra, Error> {
+        use crate::schema::user_extra::dsl::*;
+        insert_into(user_extra).values(form).get_result(conn)
     }
 }

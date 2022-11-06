@@ -12,6 +12,16 @@ create table users ( -- plural as `user` is a reserved keyword.
   updated_at timestamp
 );
 
+create unique index lower_case_username ON users (lower(username));
+create unique index lower_case_email ON users (lower(email));
+
+create table user_extra (
+  id serial primary key,
+  user_id int references users on delete cascade not null,
+  source text, -- on which page user signed up.. just for analytics..
+  created_at timestamp default now() not null,
+  updated_at timestamp
+);
 
 -- TODO - use enum please.. requires diesel upgrade and an external crate..
 -- create type oauth_provider as enum('apple', 'google', 'github', 'gitlab', 'twitter');
@@ -29,9 +39,6 @@ create table oauth (
     created_at timestamp default now() not null,
     updated_at timestamp
 );
-
-create unique index lower_case_username ON users (lower(username));
-create unique index lower_case_email ON users (lower(email));
 
 -- store oauth states here temporarily.. could have been stored directly in state(base64 encoded json) and passed around but that seems less secure
 create table oauth_states(
