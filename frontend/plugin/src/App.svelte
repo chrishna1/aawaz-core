@@ -82,8 +82,13 @@
           }
 
       } catch (e) {
+
+        $state = {
+          isLoggedIn: false,
+          userInfo: null
+        }
         console.error(e)
-          error = e;
+        // error = e;
       }
   }
 
