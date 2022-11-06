@@ -1,4 +1,5 @@
 use crate::traits::CRUD;
+use crate::models::{OAuthStatesForm, StateData, OAuthStates};
 use crate::{db, models::UserForm};
 use actix_session::Session;
 use actix_web::http::{header, Method};
@@ -34,6 +35,12 @@ pub struct GhEmail {
     email: String,
     primary: bool,
     // verified: bool TODO - send verification email for unverified.
+}
+
+
+#[derive(Deserialize)]
+pub struct OauthPayload {
+    pub url: String,
 }
 
 async fn get_primary_email(access_token: &AccessToken) -> Option<String> {
@@ -122,7 +129,7 @@ async fn read_user(access_token: &AccessToken) -> UserInfo {
     resultam
 }
 
-pub async fn login() -> EndpointResult {
+pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
     dotenv().ok();
 
     let client_id = ClientId::new(
@@ -148,8 +155,23 @@ pub async fn login() -> EndpointResult {
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
     let (pkce_code_challenge, _pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
 
+    let state_token = CsrfToken::new_random();
+
+    let connection = db::get_db_connection();
+
+    let form = OAuthStatesForm {
+        state_id: state_token.clone().secret().to_string(),
+        state_data: serde_json::to_value(
+            StateData{
+                url: params.url.clone()
+            }
+        ).unwrap()
+    };
+
+    OAuthStates::create(&connection, &form).unwrap();
+
     let (auth_url, _csrf_token) = client
-        .authorize_url(CsrfToken::new_random)
+        .authorize_url(|| state_token)
         .add_scope(Scope::new("read:user".to_string()))
         .add_scope(Scope::new("user:email".to_string()))
         .set_pkce_challenge(pkce_code_challenge)
@@ -157,7 +179,8 @@ pub async fn login() -> EndpointResult {
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, auth_url.to_string()))
-        .finish())
+        .finish()
+    )
 }
 
 pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> EndpointResult {
@@ -184,7 +207,12 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         .set_redirect_uri(redirect_url);
 
     let code = AuthorizationCode::new(params.code.clone());
-    let _state = CsrfToken::new(params.state.clone());
+    let state = CsrfToken::new(params.state.clone());
+
+    let connection = db::get_db_connection();
+    let store = OAuthStates::from_state_id(&connection, state.secret()).unwrap();
+    let state_data: StateData = serde_json::from_value(store.state_data).unwrap();
+
 
     let token = client
         .exchange_code(code)
@@ -203,7 +231,6 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
     // check if email already exists
     // if not
     // create user
-    let connection = db::get_db_connection();
     let existing_user = User::from_email(&connection, &email);
 
     let uid;
@@ -255,5 +282,9 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         .insert("uid", uid)
         .expect("Error in storing session");
 
-    Ok(HttpResponse::Ok().json(None::<bool>))
+    Ok(HttpResponse::Found()
+        .append_header((header::LOCATION, state_data.url))
+        .finish()
+    )
+
 }

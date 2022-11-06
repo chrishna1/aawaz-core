@@ -33,6 +33,13 @@ create table oauth (
 create unique index lower_case_username ON users (lower(username));
 create unique index lower_case_email ON users (lower(email));
 
+-- store oauth states here temporarily.. could have been stored directly in state(base64 encoded json) and passed around but that seems less secure
+create table oauth_states(
+    id serial primary key,
+    state_id text unique not null,
+    state_data JSONB not null
+);
+
 
 create table app (
   id serial primary key,

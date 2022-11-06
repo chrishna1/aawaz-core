@@ -42,6 +42,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    oauth_states (id) {
+        id -> Int4,
+        state_id -> Text,
+        state_data -> Jsonb,
+    }
+}
+
+diesel::table! {
     page (id) {
         id -> Int4,
         ext_id -> Uuid,
@@ -76,6 +84,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     app,
     comment,
     oauth,
+    oauth_states,
     page,
     users,
 );
