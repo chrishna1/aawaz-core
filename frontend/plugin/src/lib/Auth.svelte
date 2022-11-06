@@ -2,7 +2,8 @@
   import { Button, Modal } from 'flowbite-svelte'
   export let defaultModal = false;
   let placement = 'top-center';
-  let github_signup = `http://localhost:8080/auth/github?url=${window.parent.location.href}`
+  let comment_fragment = '#aawaz'
+  let github_signup = `http://localhost:8080/auth/github?url=${window.parent.location.href}${comment_fragment}`
 </script>
 
 <Modal title="Sign up" autoclose={false} bind:open={defaultModal} {placement} backdropClasses={'bg-gray-500 bg-opacity-50 dark:bg-opacity-80'}>
