@@ -5,6 +5,7 @@ use crate::models::{
 };
 use crate::traits::CRUD;
 use crate::util::EndpointResult;
+use actix_session::Session;
 use actix_web::{web, HttpResponse};
 use url::Url;
 
@@ -96,10 +97,14 @@ pub async fn get_comment(params: web::Query<CommentParams>) -> EndpointResult {
     Ok(HttpResponse::Ok().json(result))
 }
 
-pub async fn comment_create(comment_form: web::Json<CommentPayload>) -> EndpointResult {
-    // TODO - get `user_id` from session cookie..
-    // ensure page_id, parent_id exists
-    let user_id = 1;
+pub async fn comment_create(
+    session: Session,
+    comment_form: web::Json<CommentPayload>,
+) -> EndpointResult {
+    let user_id = match session.get("uid").unwrap() {
+        Some(uid) => uid,
+        None => return Ok(HttpResponse::Unauthorized().finish()),
+    };
 
     let connection = db::get_db_connection();
 
