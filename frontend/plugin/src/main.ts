@@ -12,7 +12,7 @@ function setupResizer() {
     // so that there's no vertical scrollbar.
 
     let rootNode = document.getElementById("root");
-    const config = { attributes: true, childList: true, subtree: true };
+    const config = { childList: true, subtree: true };
     const callback = (m, o) => {
         resize();
     };
