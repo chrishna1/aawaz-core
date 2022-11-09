@@ -14,9 +14,8 @@ use oauth2::{
 use std::env;
 use url::Url;
 
-use crate::{models::OauthForm, models::User, util::EndpointResult};
-
 use super::util::{OauthPayload, COMMENT_FRAGMENT};
+use crate::{models::OauthForm, models::User, util::EndpointResult};
 
 #[derive(Deserialize, Debug)]
 pub struct AuthRequest {
@@ -25,85 +24,26 @@ pub struct AuthRequest {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct UserInfo {
-    id: u64,
-    name: String,
-    login: String,
+struct UserInfo {
+    id: String,
+    name: String,       // full name
+    given_name: String, // first name
     email: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct GhEmail {
-    email: String,
-    primary: bool,
-    // verified: bool TODO - send verification email for unverified.
-}
-
-async fn get_primary_email(access_token: &AccessToken) -> Option<String> {
-    let url = Url::parse("https://api.github.com/user/emails").unwrap();
-
-    println!("{}", url);
-
-    let mut header = HeaderMap::new();
-    header.append(
-        header::AUTHORIZATION,
-        format!("token {}", access_token.secret())
-            .as_str()
-            .parse()
-            .unwrap(), // wtf??
-    );
-
-    header.append(
-        header::ACCEPT,
-        "application/vnd.github.v3+json".parse().unwrap(),
-    );
-    header.append(header::USER_AGENT, "aawaz.io".parse().unwrap());
-
-    let resp = async_http_client(oauth2::HttpRequest {
-        url,
-        method: Method::GET,
-        headers: header,
-        body: Vec::new(),
-    })
-    .await
-    .expect("Request failed");
-
-    // let s = String::from_utf8(resp.body).expect("Found invalid UTF-8");
-    // println!("{}", s);
-    // println!("{:?}", resp.body);
-
-    let resultam: Vec<GhEmail> = serde_json::from_slice(&resp.body).unwrap();
-
-    println!("{:?}", resultam);
-
-    for record in resultam {
-        if record.primary {
-            return Some(record.email);
-        }
-    }
-
-    return None;
 }
 
 async fn read_user(access_token: &AccessToken) -> UserInfo {
-    let url = Url::parse("https://api.github.com/user").unwrap();
+    let url = Url::parse(
+        format!(
+            "https://www.googleapis.com/oauth2/v2/userinfo?access_token={}",
+            access_token.secret()
+        )
+        .as_str(),
+    )
+    .unwrap();
 
     println!("{}", url);
 
-    let mut header = HeaderMap::new();
-    header.append(
-        header::AUTHORIZATION,
-        format!("token {}", access_token.secret())
-            .as_str()
-            .parse()
-            .unwrap(), // wtf??
-    );
-
-    header.append(
-        header::ACCEPT,
-        "application/vnd.github.v3+json".parse().unwrap(),
-    );
-    header.append(header::USER_AGENT, "aawaz.io".parse().unwrap());
+    let header = HeaderMap::new();
 
     let resp = async_http_client(oauth2::HttpRequest {
         url,
@@ -113,10 +53,6 @@ async fn read_user(access_token: &AccessToken) -> UserInfo {
     })
     .await
     .expect("Request failed");
-
-    // let s = String::from_utf8(resp.body).expect("Found invalid UTF-8");
-    // println!("{}", s);
-    // println!("{:?}", resp.body);
 
     let resultam: UserInfo = serde_json::from_slice(&resp.body).unwrap();
 
@@ -129,19 +65,18 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
     dotenv().ok();
 
     let client_id = ClientId::new(
-        env::var("OAUTH_GITHUB_CLIENT_ID").expect("OAUTH_GITHUB_CLIENT_ID must be set"),
+        env::var("OAUTH_GOOGLE_CLIENT_ID").expect("OAUTH_GOOGLE_CLIENT_ID must be set"),
     );
     let client_secret = ClientSecret::new(
-        env::var("OAUTH_GITHUB_SECRET").expect("OAUTH_GITHUB_SECRET must be set"),
+        env::var("OAUTH_GOOGLE_SECRET").expect("OAUTH_GOOGLE_SECRET must be set"),
     );
 
-    let auth_url = AuthUrl::new(String::from("https://github.com/login/oauth/authorize")).unwrap();
+    let auth_url = AuthUrl::new(String::from("https://accounts.google.com/o/oauth2/auth")).unwrap();
 
-    let token_url =
-        TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
+    let token_url = TokenUrl::new(String::from("https://oauth2.googleapis.com/token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
+        String::from("http://localhost:8080/auth/google/callback"), // TODO - construct this from env variable
     )
     .unwrap();
 
@@ -164,8 +99,13 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
 
     let (auth_url, _csrf_token) = client
         .authorize_url(|| state_token)
-        .add_scope(Scope::new("read:user".to_string()))
-        .add_scope(Scope::new("user:email".to_string()))
+        .add_scope(Scope::new(
+            "https://www.googleapis.com/auth/userinfo.email".to_string(),
+        ))
+        .add_scope(Scope::new(
+            "https://www.googleapis.com/auth/userinfo.profile".to_string(),
+        ))
+        // .set_pkce_challenge(pkce_code_challenge)
         .url();
 
     Ok(HttpResponse::Found()
@@ -177,19 +117,18 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
     dotenv().ok();
 
     let client_id = ClientId::new(
-        env::var("OAUTH_GITHUB_CLIENT_ID").expect("OAUTH_GITHUB_CLIENT_ID must be set"),
+        env::var("OAUTH_GOOGLE_CLIENT_ID").expect("OAUTH_GOOGLE_CLIENT_ID must be set"),
     );
     let client_secret = ClientSecret::new(
-        env::var("OAUTH_GITHUB_SECRET").expect("OAUTH_GITHUB_SECRET must be set"),
+        env::var("OAUTH_GOOGLE_SECRET").expect("OAUTH_GOOGLE_SECRET must be set"),
     );
 
-    let auth_url = AuthUrl::new(String::from("https://github.com/login/oauth/authorize")).unwrap();
+    let auth_url = AuthUrl::new(String::from("https://accounts.google.com/o/oauth2/auth")).unwrap();
 
-    let token_url =
-        TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
+    let token_url = TokenUrl::new(String::from("https://oauth2.googleapis.com/token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
+        String::from("http://localhost:8080/auth/google/callback"), // TODO - construct this from env variable
     )
     .unwrap();
 
@@ -213,22 +152,18 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
 
     let user_response = read_user(token.access_token()).await;
 
-    let email = get_primary_email(token.access_token())
-        .await
-        .unwrap_or_else(|| user_response.email);
-
     // check if email already exists
     // if not
     // create user
-    let existing_user = User::from_email(&connection, &email);
+    let existing_user = User::from_email(&connection, &user_response.email);
 
     let uid;
 
     if existing_user.is_err() {
         // email not found!! create new user
         let form = UserForm {
-            username: user_response.login,
-            email: email,
+            username: user_response.given_name,
+            email: user_response.email,
             name: Some(user_response.name),
             password: None,
         };
@@ -244,7 +179,7 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         let form = OauthForm {
             user_id: new_user.id,
             provider_id: user_response.id.to_string(),
-            provider: String::from("github"),
+            provider: String::from("google"),
             access_token: token.access_token().secret().to_string(),
             refresh_token: match token.refresh_token() {
                 Some(token) => Some(token.secret().to_string()),

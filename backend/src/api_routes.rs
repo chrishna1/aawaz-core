@@ -1,5 +1,4 @@
-use crate::auth::github::{callback, login};
-use crate::auth::logout::logout;
+use crate::auth::{github, google, logout::logout};
 use crate::controllers::{app::*, comment::*, page::*, user::*};
 use actix_files::Files;
 use actix_web::web;
@@ -31,9 +30,10 @@ pub fn config(cfg: &mut web::ServiceConfig, api_ver: &str) {
             )
             .service(
                 web::scope("")
-                    // serve static files!!
-                    .route("/auth/github", web::get().to(login))
-                    .route("/auth/github/callback", web::get().to(callback))
+                    .route("/auth/github", web::get().to(github::login))
+                    .route("/auth/github/callback", web::get().to(github::callback))
+                    .route("/auth/google", web::get().to(google::login))
+                    .route("/auth/google/callback", web::get().to(google::callback))
                     .route("/logout", web::get().to(logout))
                     .service(Files::new("/", "./static/").index_file("index.html")),
             ),
