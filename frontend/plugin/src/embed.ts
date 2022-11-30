@@ -22,17 +22,19 @@ window.addEventListener("message", (e) => {
     }
 });
 
-function getSrcDoc() {
+function getSrcDoc(baseUrl: string) {
     // TODO - move this content to html file.. and refer to that file using relative path.
     // in worst case read the content of the html file and return it as string.
+
+    // can this be used ? - https://www.npmjs.com/package/vite-plugin-html-template
     return `<html>
   <head>
       <base target="_parent" />
   </head>
   <body>
     <div id="root"></div>
-    <script src="http://localhost:8081/plugin.umd.js"></script>
-    <link rel="stylesheet" href="http://localhost:8081/style.css">
+    <script src="${baseUrl}plugin.umd.js"></script>
+    <link rel="stylesheet" href="${baseUrl}style.css">
   </body>
 </html>`;
 }
@@ -40,7 +42,7 @@ function getSrcDoc() {
 function createIframe(siteId: string) {
     let iframe = document.createElement("iframe");
     iframe.id = siteId + "_iframe";
-    iframe.srcdoc = getSrcDoc();
+    iframe.srcdoc = getSrcDoc(import.meta.env.BASE_URL);
     iframe.width = "100%";
     iframe.frameBorder = "0";
     return iframe;

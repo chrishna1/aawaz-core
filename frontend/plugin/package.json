@@ -4,8 +4,8 @@
     "version": "0.0.0",
     "scripts": {
         "dev": "vite",
-        "dev-widget": "vite build --watch",
-        "dev-embed": "vite build --watch --config vite.embed.config.js",
+        "dev-widget": "vite build --watch --base=http://localhost:8081/",
+        "dev-embed": "vite build --watch --config vite.embed.config.js --base=http://localhost:8081/",
         "build": "vite build",
         "preview": "vite preview"
     },
