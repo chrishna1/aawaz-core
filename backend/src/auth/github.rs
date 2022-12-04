@@ -141,7 +141,7 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
         TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
+        env::var("BASE_URL").expect("BASE_URL must be set") + "/auth/github/callback",
     )
     .unwrap();
 
@@ -189,7 +189,7 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         TokenUrl::new(String::from("https://github.com/login/oauth/access_token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/github/callback"), // TODO - construct this from env variable
+        env::var("BASE_URL").expect("BASE_URL must be set") + "/auth/github/callback",
     )
     .unwrap();
 

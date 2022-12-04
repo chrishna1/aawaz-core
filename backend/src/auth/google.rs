@@ -76,7 +76,7 @@ pub async fn login(params: web::Query<OauthPayload>) -> EndpointResult {
     let token_url = TokenUrl::new(String::from("https://oauth2.googleapis.com/token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/google/callback"), // TODO - construct this from env variable
+        env::var("BASE_URL").expect("BASE_URL must be set") + "/auth/google/callback",
     )
     .unwrap();
 
@@ -128,7 +128,7 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
     let token_url = TokenUrl::new(String::from("https://oauth2.googleapis.com/token")).unwrap();
 
     let redirect_url = RedirectUrl::new(
-        String::from("http://localhost:8080/auth/google/callback"), // TODO - construct this from env variable
+        env::var("BASE_URL").expect("BASE_URL must be set") + "/auth/google/callback",
     )
     .unwrap();
 
