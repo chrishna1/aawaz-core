@@ -1,0 +1,102 @@
+# adapted from - https://stribny.name/blog/ansible
+
+- hosts: speako
+  gather_facts: "no"
+  remote_user: root
+  vars_files:
+    - vars.yml
+  pre_tasks:
+    - name: Install packages
+      apt:
+        pkg:
+          - postgresql
+          - postgresql-contrib
+        state: present
+    - name: Install Python pip
+      apt:
+        pkg:
+          - python3-pip
+        update_cache: true
+        state: present
+        force_apt_get: "yes"
+    - name: Install Python packages
+      pip:
+        name:
+          - psycopg2-binary
+        state: present
+  tasks:
+    - name: Find out if PostgreSQL is initialized
+      ansible.builtin.stat:
+        path: /var/lib/pgsql/data/pg_hba.conf
+      register: postgres_data
+    - name: Start and enable services
+      service: "name={{ item }} state=started enabled=yes"
+      with_items:
+        - postgresql
+    - name: Create app database
+      postgresql_db:
+        state: present
+        name: "{{ db_name }}"
+      become: "yes"
+      become_user: postgres
+    - name: Create db user
+      postgresql_user:
+        state: present
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+      become: "yes"
+      become_user: postgres
+    - name: Grant db user access to app db
+      postgresql_privs:
+        type: database
+        database: "{{ db_name }}"
+        roles: "{{ db_user }}"
+        grant_option: "no"
+        privs: all
+      become: "yes"
+      become_user: postgres
+    - name: Copy
+      ansible.builtin.copy:
+        src: >-
+          /home/insoluble/Workspace/projects/aawaz-core/backend/target/release/aawaz
+        dest: /opt/aawaz
+        mode: "0744"
+      tags:
+        - copy
+        - backend
+    - name: Copy env
+      ansible.builtin.copy:
+        src: /home/insoluble/Workspace/projects/aawaz-core/artifacts/backend/.env
+        dest: /opt/.env
+        mode: "0744"
+      tags:
+        - copy
+        - backend
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /var/www/static
+        state: directory
+        mode: "0755"
+      tags: frontend
+    - name: Copy static files
+      ansible.builtin.copy:
+        src: /home/insoluble/Workspace/projects/aawaz-core/frontend/plugin/dist/
+        dest: /var/www/static
+        mode: "0744"
+      tags:
+        - copy
+        - frontend
+    - name: Speako | Create Unit file
+      template: src=speako.service.j2 dest=/lib/systemd/system/speako.service mode=644
+      notify:
+        - reload systemctl
+    - name: Speako | Start speako
+      service: name=speako.service state=started enabled=yes
+      tags:
+        - copy
+        - backend
+  handlers:
+    - name: restart postgres
+      service: name=postgresql state=restarted
+    - name: reload systemctl
+      command: systemctl daemon-reload
