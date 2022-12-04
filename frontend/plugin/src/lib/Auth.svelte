@@ -1,9 +1,13 @@
 <script>
+  import { getContext } from 'svelte'
   import { Button, Modal } from 'flowbite-svelte'
   export let defaultModal = false;
+
+  const { host } = getContext('attrs');
+
   let placement = 'top-center';
-  let github_signup = `http://localhost:8080/auth/github?url=${window.parent.location.href}`
-  let google_signup = `http://localhost:8080/auth/google?url=${window.parent.location.href}`
+  let github_signup = `${host}/auth/github?url=${window.parent.location.href}`
+  let google_signup = `${host}/auth/google?url=${window.parent.location.href}`
 </script>
 
 <Modal title="Sign up" autoclose={false} bind:open={defaultModal} {placement} backdropClasses={'bg-gray-500 bg-opacity-50 dark:bg-opacity-80'}>

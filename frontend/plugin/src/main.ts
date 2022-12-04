@@ -25,7 +25,7 @@ function createApp() {
         target: document.getElementById("root"),
         props: {
             attrs: {
-                host: "http://localhost:8080",
+                host: import.meta.env.BASE_URL.slice(0, -1), // remove trailing slash.. vite expects trailing slash.. but then axios don't behave properly
                 theme: "light",
             },
         },

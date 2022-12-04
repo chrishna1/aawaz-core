@@ -6,6 +6,8 @@
         "dev": "vite",
         "dev-widget": "vite build --watch --base=http://localhost:8081/",
         "dev-embed": "vite build --watch --config vite.embed.config.js --base=http://localhost:8081/",
+        "dev-widget-prod": "vite build --watch --base=https://speako.app/",
+        "dev-embed-prod": "vite build --watch --config vite.embed.config.js --base=https://speako.app/",
         "build": "vite build",
         "preview": "vite preview"
     },

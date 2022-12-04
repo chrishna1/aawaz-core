@@ -33,8 +33,8 @@ function getSrcDoc(baseUrl: string) {
   </head>
   <body>
     <div id="root"></div>
-    <script src="${baseUrl}plugin.umd.js"></script>
-    <link rel="stylesheet" href="${baseUrl}style.css">
+    <script src="${baseUrl}/static/plugin.umd.js"></script>
+    <link rel="stylesheet" href="${baseUrl}/static/style.css">
   </body>
 </html>`;
 }
@@ -42,7 +42,7 @@ function getSrcDoc(baseUrl: string) {
 function createIframe(siteId: string) {
     let iframe = document.createElement("iframe");
     iframe.id = siteId + "_iframe";
-    iframe.srcdoc = getSrcDoc(import.meta.env.BASE_URL);
+    iframe.srcdoc = getSrcDoc(import.meta.env.BASE_URL.slice(0, -1));
     iframe.width = "100%";
     iframe.frameBorder = "0";
     return iframe;
