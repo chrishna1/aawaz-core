@@ -70,7 +70,6 @@ pub async fn comment_list(pp: web::Query<PagePayload>) -> EndpointResult {
     // get page_id from app_id + path
     // if page_id exist ok, else create page if it doesn't exist(first comment on a page)!!
 
-    println!("domain: {}", domain);
     let app = App::from_domain(&connection, domain)?;
 
     let page = match Page::from_app_id_and_path(&connection, app.id, String::from(path)) {
@@ -118,7 +117,6 @@ pub async fn comment_create(
     // get page_id from app_id + path
     // if page_id exist ok, else create page if it doesn't exist(first comment on a page)!!
 
-    println!("domain: {}", domain);
     let app = App::from_domain(&connection, domain)?;
 
     let page = match Page::from_app_id_and_path(&connection, app.id, String::from(path)) {

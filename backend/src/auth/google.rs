@@ -41,8 +41,6 @@ async fn read_user(access_token: &AccessToken) -> UserInfo {
     )
     .unwrap();
 
-    println!("{}", url);
-
     let header = HeaderMap::new();
 
     let resp = async_http_client(oauth2::HttpRequest {
@@ -55,8 +53,6 @@ async fn read_user(access_token: &AccessToken) -> UserInfo {
     .expect("Request failed");
 
     let resultam: UserInfo = serde_json::from_slice(&resp.body).unwrap();
-
-    println!("{:?}", resultam);
 
     resultam
 }
@@ -147,8 +143,6 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         .request_async(async_http_client)
         .await
         .unwrap();
-
-    println!("{}", token.access_token().secret());
 
     let user_response = read_user(token.access_token()).await;
 

@@ -25,7 +25,6 @@ lazy_static! {
 }
 
 pub fn init() {
-    println!("Initializing Database");
     lazy_static::initialize(&POOL);
     let conn = get_db_connection();
     if cfg!(test) {

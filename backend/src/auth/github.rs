@@ -42,8 +42,6 @@ pub struct GhEmail {
 async fn get_primary_email(access_token: &AccessToken) -> Option<String> {
     let url = Url::parse("https://api.github.com/user/emails").unwrap();
 
-    println!("{}", url);
-
     let mut header = HeaderMap::new();
     header.append(
         header::AUTHORIZATION,
@@ -68,13 +66,7 @@ async fn get_primary_email(access_token: &AccessToken) -> Option<String> {
     .await
     .expect("Request failed");
 
-    // let s = String::from_utf8(resp.body).expect("Found invalid UTF-8");
-    // println!("{}", s);
-    // println!("{:?}", resp.body);
-
     let resultam: Vec<GhEmail> = serde_json::from_slice(&resp.body).unwrap();
-
-    println!("{:?}", resultam);
 
     for record in resultam {
         if record.primary {
@@ -88,8 +80,6 @@ async fn get_primary_email(access_token: &AccessToken) -> Option<String> {
 async fn read_user(access_token: &AccessToken) -> UserInfo {
     let url = Url::parse("https://api.github.com/user").unwrap();
 
-    println!("{}", url);
-
     let mut header = HeaderMap::new();
     header.append(
         header::AUTHORIZATION,
@@ -114,13 +104,7 @@ async fn read_user(access_token: &AccessToken) -> UserInfo {
     .await
     .expect("Request failed");
 
-    // let s = String::from_utf8(resp.body).expect("Found invalid UTF-8");
-    // println!("{}", s);
-    // println!("{:?}", resp.body);
-
     let resultam: UserInfo = serde_json::from_slice(&resp.body).unwrap();
-
-    println!("{:?}", resultam);
 
     resultam
 }
@@ -208,8 +192,6 @@ pub async fn callback(session: Session, params: web::Query<AuthRequest>) -> Endp
         .request_async(async_http_client)
         .await
         .unwrap();
-
-    println!("{}", token.access_token().secret());
 
     let user_response = read_user(token.access_token()).await;
 
