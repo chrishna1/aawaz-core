@@ -4,12 +4,15 @@ use actix_web::{
     cookie::{self, Key, SameSite},
     App as ActixWebApp, HttpServer,
 };
+use dotenv::dotenv;
+use std::env;
 
 use aawaz::{api_routes, db};
 
 #[rustfmt::skip]
 #[actix_web::main]
 pub async fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
     db::init();
 
@@ -22,7 +25,7 @@ pub async fn main() -> std::io::Result<()> {
             // cookie session middleware
             .wrap(
                 SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
-                    .cookie_name("aawaz-sess-id".to_owned()) // TODO - pick this from env variable
+                    .cookie_name(env::var("COOKIE_NAME").expect("COOKIE_NAME is required").to_owned())
                     .cookie_secure(false)
                     .cookie_same_site(SameSite::None)
                     .cookie_secure(true)
